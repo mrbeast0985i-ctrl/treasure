@@ -1,0 +1,298 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>HM Treasury - Admin Panel</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background:#f1f5f9; color:#1e293b; margin:0; }
+    .container { max-width:1200px; margin:0 auto; padding:20px; }
+    header { background:#1e293b; color:white; padding:16px 0; }
+    .logo { font-size:26px; font-weight:bold; margin-left:20px; }
+    .login { background:white; padding:30px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.1); max-width:400px; margin:40px auto; }
+    .input, .btn { width:100%; padding:14px; margin:10px 0; border-radius:10px; border:1px solid #cbd5e1; font-size:16px; }
+    .btn { background:#3b82f6; color:white; cursor:pointer; font-weight:600; border:none; }
+    .btn:hover { background:#2563eb; }
+    .btn-success { background:#16a34a; }
+    .btn-danger { background:#dc2626; }
+    .btn-warning { background:#ea580c; }
+    table { width:100%; border-collapse:collapse; background:white; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.1); margin-top:20px; }
+    th { background:#1e293b; color:white; padding:18px; text-align:left; font-weight:600; }
+    td { padding:16px; border-bottom:1px solid #e2e8f0; vertical-align:top; }
+    tr:hover { background:#f8fafc; }
+    .status-badge { padding:6px 12px; border-radius:50px; color:white; font-size:13px; font-weight:bold; }
+    .pending { background:#ea580c; }
+    .review { background:#0ea5e9; }
+    .approved { background:#16a34a; }
+    .rejected { background:#dc2626; }
+    .load-btn, .post-btn { background:#dc2626; padding:18px 40px; font-size:18px; margin:20px 10px 20px 0; display:inline-block; }
+
+    /* POPUP FOR POSTING SANCTION */
+    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; padding:20px; }
+    .popup-box { background:white; max-width:600px; width:100%; border-radius:20px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.5); animation:pop 0.4s ease-out; }
+    @keyframes pop { from { transform:scale(0.8); opacity:0; } to { transform:scale(1); opacity:1; } }
+    .popup-header { background:#dc2626; color:white; padding:20px; text-align:center; font-size:22px; font-weight:bold; position:relative; }
+    .close-popup { position:absolute; top:10px; right:16px; background:none; border:none; color:white; font-size:32px; cursor:pointer; }
+    .popup-body { padding:40px; }
+    .popup-body label { display:block; margin:16px 0 6px; font-weight:600; }
+    .popup-body input, .popup-body textarea { width:100%; padding:14px; border-radius:10px; border:1px solid #cbd5e1; font-size:16px; }
+    #postMsg { margin-top:16px; font-weight:600; text-align:center; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
+    <div class="logo">HM Treasury Admin</div>
+    <a href="index.html" style="color:white; text-decoration:none; font-weight:500;">← Back to Public Site</a>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Login -->
+  <div id="loginBox" class="login">
+    <h2 style="text-align:center; color:#1e293b;">Admin Login</h2>
+    <input id="email" class="input" placeholder="admin@example.com" type="email" />
+    <input id="pass" class="input" placeholder="Password" type="password" />
+    <button class="btn" onclick="login()">Sign In</button>
+    <p id="loginMsg" style="margin-top:15px; text-align:center; font-weight:500;"></p>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel" style="display:none;">
+    <h1 style="margin-top:0; color:#dc2626;">Appeals & Sanctions Management</h1>
+    <p>Welcome back, <strong id="adminName"></strong></p>
+
+    <div style="margin:30px 0;">
+      <button class="btn load-btn" onclick="loadAllAppeals()">Load All Appeals</button>
+      <button class="btn post-btn" onclick="openPostPopup()">+ Publish New Sanction</button>
+    </div>
+
+    <div id="loading" style="text-align:center; padding:40px; display:none;"><h3>Loading...</h3></div>
+
+    <table id="appealsTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>Appeal ID</th>
+          <th>Company</th>
+          <th>Email</th>
+          <th>Message</th>
+          <th>Submitted</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div id="noAppeals" style="text-align:center; padding:60px; background:white; border-radius:16px; margin-top:20px; display:none;">
+      <h3>No appeals found.</h3>
+    </div>
+  </div>
+</div>
+
+<!-- POST SANCTION POPUP -->
+<div class="overlay" id="postOverlay">
+  <div class="popup-box">
+    <div class="popup-header">
+      Publish New Sanction
+      <button class="close-popup" onclick="closePostPopup()">×</button>
+    </div>
+    <div class="popup-body">
+      <label>Company Name *</label>
+      <input id="offCompany" required />
+
+      <label>Company Address *</label>
+      <input id="offAddress" required />
+
+      <label>Offence Description *</label>
+      <textarea id="offDescription" rows="5" required></textarea>
+
+      <label>Appeal Deadline *</label>
+      <input id="offDeadline" type="date" required />
+
+      <div style="margin-top:30px; text-align:center;">
+        <button class="btn btn-danger" style="padding:16px 40px; font-size:18px;" onclick="publishSanction()">
+          Publish to Public List
+        </button>
+      </div>
+      <p id="postMsg"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
+    authDomain: "treasure-f5cc7.firebaseapp.com",
+    projectId: "treasure-f5cc7",
+    storageBucket: "treasure-f5cc7.firebasestorage.app",
+    messagingSenderId: "726318121382",
+    appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // Login
+  function login() {
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('pass').value;
+    auth.signInWithEmailAndPassword(email, pass)
+      .catch(err => {
+        document.getElementById('loginMsg').textContent = 'Login failed: ' + err.message;
+        document.getElementById('loginMsg').style.color = 'red';
+      });
+  }
+
+  // Auth State
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      document.getElementById('loginBox').style.display = 'block';
+      document.getElementById('adminPanel').style.display = 'none';
+      return;
+    }
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    document.getElementById('adminName').textContent = user.email;
+  });
+
+  // === APPEALS TABLE (unchanged from previous working version) ===
+  async function loadAllAppeals() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('appealsTable').style.display = 'none';
+    document.getElementById('noAppeals').style.display = 'none';
+
+    try {
+      const snap = await db.collection('appeals').orderBy('submittedAt', 'desc').get();
+      const tbody = document.querySelector('#appealsTable tbody');
+      tbody.innerHTML = '';
+
+      if (snap.empty) {
+        document.getElementById('noAppeals').style.display = 'block';
+        document.getElementById('loading').style.display = 'none';
+        return;
+      }
+
+      snap.forEach(doc => {
+        const d = doc.data();
+        const date = d.submittedAt ? d.submittedAt.toDate().toLocaleString('en-GB') : '—';
+        const status = d.status || 'Pending';
+        const badgeClass = status === 'Approved' ? 'approved' : 
+                          status === 'Rejected' ? 'rejected' : 
+                          status === 'Under Review' ? 'review' : 'pending';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${escapeHtml(d.appealId)}</strong></td>
+          <td><strong>${escapeHtml(d.companyName)}</strong><br>${escapeHtml(d.companyAddress || '')}</td>
+          <td>${escapeHtml(d.companyEmail)}<br><small>${escapeHtml(d.contactPerson || '—')}</small></td>
+          <td style="max-width:300px;">${escapeHtml(d.message).replace(/\n/g, '<br>')}</td>
+          <td>${date}</td>
+          <td><span class="status-badge ${badgeClass}">${status}</span></td>
+          <td>
+            <button class="btn btn-success" style="padding:8px 14px; margin:4px;" onclick="updateStatus('${doc.id}', 'Approved')">Approve</button>
+            <button class="btn btn-danger" style="padding:8px 14px; margin:4px;" onclick="updateStatus('${doc.id}', 'Rejected')">Reject</button>
+            <button class="btn btn-warning" style="padding:8px 14px; margin:4px; color:white;" onclick="updateStatus('${doc.id}', 'Under Review')">Review</button>
+            <button class="btn" style="padding:8px 14px; margin:4px; background:#64748b;" onclick="addNotes('${doc.id}', '${escapeJs(d.adminNotes || '')}')">Notes</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.getElementById('appealsTable').style.display = 'table';
+    } catch (err) {
+      alert('Error: ' + err.message);
+    } finally {
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  async function updateStatus(id, status) {
+    if (!confirm(`Change status to "${status}"?`)) return;
+    await db.collection('appeals').doc(id).update({
+      status,
+      reviewedBy: auth.currentUser.email,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    loadAllAppeals();
+  }
+
+  async function addNotes(id, current) {
+    const notes = prompt('Admin Notes:', current);
+    if (notes === null) return;
+    await db.collection('appeals').doc(id).update({
+      adminNotes: notes,
+      reviewedBy: auth.currentUser.email,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert('Notes saved');
+  }
+
+  // === POST SANCTION POPUP ===
+  function openPostPopup() {
+    document.getElementById('postOverlay').style.display = 'flex';
+  }
+  function closePostPopup() {
+    document.getElementById('postOverlay').style.display = 'none';
+    document.getElementById('postMsg').textContent = '';
+  }
+
+  async function publishSanction() {
+    const company = document.getElementById('offCompany').value.trim();
+    const address = document.getElementById('offAddress').value.trim();
+    const desc = document.getElementById('offDescription').value.trim();
+    const deadline = document.getElementById('offDeadline').value;
+
+    if (!company || !address || !desc || !deadline) {
+      document.getElementById('postMsg').textContent = 'All fields are required';
+      document.getElementById('postMsg').style.color = 'red';
+      return;
+    }
+
+    try {
+      await db.collection('public_offences').add({
+        companyName: company,
+        address: address,
+        offence: desc,
+        appealDeadline: deadline,
+        postedBy: auth.currentUser.email,
+        postedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      document.getElementById('postMsg').textContent = 'Sanction published successfully!';
+      document.getElementById('postMsg').style.color = 'green';
+
+      // Clear form
+      document.getElementById('offCompany').value = '';
+      document.getElementById('offAddress').value = '';
+      document.getElementById('offDescription').value = '';
+      document.getElementById('offDeadline').value = '';
+
+      setTimeout(closePostPopup, 1500);
+    } catch (err) {
+      document.getElementById('postMsg').textContent = 'Error: ' + err.message;
+      document.getElementById('postMsg').style.color = 'red';
+    }
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  function escapeJs(text) { return (text+'').replace(/'/g, "\\'"); }
+
+  // Close popup when clicking outside
+  document.getElementById('postOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('postOverlay')) closePostPopup();
+  });
+</script>
+</body>
+</html>

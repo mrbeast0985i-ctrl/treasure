@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HM Treasury Appeals</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body { margin:0; font-family:system-ui,sans-serif; background:#fff; color:#1e293b; line-height:1.6; }
+
+    /* PUBLIC SANCTIONS LIST */
+    #sanctionsSection {
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      padding: 90px 20px;
+      text-align: center;
+    }
+    #sanctionsSection h1 {
+      font-size: 52px;
+      color: #991b1b;
+      font-weight: 900;
+      margin: 0 0 20px 0;
+    }
+    #sanctionsSection p {
+      font-size: 23px;
+      color: #7f1d1d;
+      max-width: 900px;
+      margin: 0 auto 60px;
+    }
+    .offence-list {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(220,38,38,0.2);
+      margin: 0 auto;
+      max-width: 1100px;
+    }
+    .offence-item {
+      padding: 32px;
+      border-bottom: 1px solid #fee;
+      cursor: pointer;
+      transition: all 0.4s ease;
+    }
+    .offence:hover {
+      background: #fff1f1;
+      transform: translateY(-6px);
+      box-shadow: 0 15px 40px rgba(220,38,38,0.15);
+    }
+    .offence:last-child { border: none; }
+    .company-name {
+      font-size: 28px;
+      font-weight: bold;
+      color: #dc2626;
+      margin-bottom: 10px;
+    }
+    .deadline {
+      font-size: 19px;
+      font-weight: bold;
+      color: #991b1b;
+    }
+    .badge {
+      background: #dc2626;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-left: 12px;
+    }
+
+    /* PERFECT CENTERED POPUP */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+    .popup {
+      background: white;
+      width: 90%;
+      max-width: 680px;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+      animation: pop 0.5s ease-out;
+    }
+
+    @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .popup-header {
+      background: #dc2626;
+      color: white;
+      padding: 28px;
+      font-size: 30px;
+      font-weight: bold;
+      text-align: center;
+      position: relative;}
+    .popup-close {
+      position: absolute;
+      top: 20px; right: 28px;
+      background: none;
+      border: none;
+      font-size: 40px;
+      color: white;
+      cursor: pointer;
+    }
+    .popup-body {
+      padding: 45px;
+      font-size: 18px;
+    }
+    .appeal-btn {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 18px;
+      font-size: 22px;
+      font-weight: bold;
+      border-radius: 14px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 35px;
+    }
+    .appeal-btn:hover { background: #b91c1c; }
+
+    /* FORM POPUP ALSO CENTERED */
+
+    .form-popup {
+    display: none;
+    position: fixed;
+    background: rgba(0,0,0,0.8);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow: auto;
+  }
+  .form-container {
+    background: white;
+    width: 90%;
+    max-width: 620px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 30px 90px rgba(0,0,0,0.4);
+    animation: pop 0.45s ease-out;
+    max-height: 95vh;        /* crucial for scrollability */
+    display: flex;
+    flex-direction: column;
+  }
+  .form-header {
+    background: #dc2626;
+    color: white;
+    padding: 20px 24px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .form-close {
+    position: absolute;
+    top: 14px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 32px;
+    cursor: pointer;
+  }
+  .form-body {
+    padding: 40px;
+    overflow-y: auto;        /* this makes the form scrollable */
+    flex: 1;
+  }
+
+  /* SUCCESS OVERLAY */
+  .success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .success-box {
+    background: white;
+    max-width: 500px;
+    width: 90%;
+    border-radius: 20px;
+    text-align: center;
+    padding: 50px 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: pop 0.5s ease-out;
+  }
+  .success-box h2 {
+    color: #16a34a;
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+  .appeal-code {
+    background: #f0fdf4;
+    border: 2px dashed #16a34a;
+    color: #166534;
+    font-size: 28px;
+    font-weight: bold;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 25px 0;
+    letter-spacing: 2px;
+    word-break: break-all;
+  }
+  .copy-btn {
+    background: #16a34a;
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  .copy-btn:hover { background: #15803d; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="nav-container" style="max-width:1200px; margin:auto; padding:20px; display:flex; justify-content:space-between; align-items:center;">
+      <div class="logo" style="font-size:28px; font-weight:bold;">HM Treasury Appeals</div>
+      <nav>
+        <a href="#sanctions" style="margin:0 15px; color:white; text-decoration:none; font-weight:600;">Sanctions List</a>
+        <a href="#mission" style="margin:0 15px; color:white; text-decoration:none; font-weight:600;">Mission</a>
+        <a href="#whyus" style="margin:0 15px; color:white; text-decoration:none; font-weight:600;">Why Choose Us</a>
+        <a href="#policies" style="margin:0 15px; color:white; text-decoration:none; font-weight:600;">Policies</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero" style="text-align:center; padding:100px 20px; background:#f8fafc;">
+      <h1 style="font-size:48px; color:#1e293b;">HM Treasury Appeals</h1>
+      <p style="font-size:22px; max-width:900px; margin:30px auto; color:#475569;">
+        Submit an appeal, upload supporting documents, and request a formal review for the restoration of your services.
+      </p>
+      <button class="btn" onclick="openPopup()" style="background:#dc2626; color:white; padding:16px 40px; font-size:20px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">Submit an Appeal</button>
+    </section>
+    <section id="checkstatus" style="padding:100px 20px; background:#1e293b; color:white; text-align:center;">
+      <div style="max-width:900px; margin:auto;">
+        <h2 style="font-size:42px; margin-bottom:20px;">Check Your Appeal Status</h2>
+        <p style="font-size:20px; margin-bottom:40px; opacity:0.9;">
+          Enter your Appeal ID (e.g. APL-XY1234) below
+        </p>
+        <div style="max-width:500px; margin:auto;">
+          <input id="statusInput" type="text" placeholder="APL-XXXXXX" style="width:100%; padding:16px; font-size:18px; border-radius:12px; border:none; margin-bottom:15px; text-transform:uppercase;" />
+          <button onclick="checkAppealStatus()" style="background:#dc2626; color:white; padding:16px 50px; font-size:19px; border:none; border-radius:12px; cursor:pointer; font-weight:bold; width:100%;">
+            Check Status
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PUBLIC SANCTIONS LIST -->
+    <section id="sanctions">
+      <div id="sanctionsSection">
+        <h1>Public Sanctions & Offences</h1>
+        <p>Companies currently suspended for fraud, non-payment, or serious contract violation</p>
+
+        <div id="offencesContainer" class="offence-list"></div>
+
+        <div id="noOffences" style="padding:100px 20px; font-size:26px; color:#991b1b; font-weight:bold;">
+          No active sanctions at this time.
+        </div>
+      </div>
+    </section>
+
+    <!-- MISSION & VISION -->
+    <section class="section" id="mission" style="padding:80px 20px; background:white;">
+      <div style="max-width:1100px; margin:auto;">
+        <h2 style="text-align:center; font-size:38px; color:#1e293b;">Mission & Vision</h2>
+        <p style="font-size:19px; text-align:center; max-width:800px; margin:30px auto;"><strong>Mission:</strong> Provide a transparent, fast and secure appeal channel...</p>
+        <p style="font-size:19px; text-align:center; max-width:800px; margin:30px auto;"><strong>Vision:</strong> Be the industry standard...</p>
+      </div>
+    </section>
+
+    <!-- REST OF YOUR SECTIONS (Why Us, Policies, Check Status) -->
+    <!-- Keep exactly as you had them -->
+
+  </main>
+
+  <footer style="background:#1e293b; color:white; padding:60px 20px; text-align:center;">
+    <div style="max-width:1100px; margin:auto;">
+      <p style="font-size:18px;">HM Treasury — Appeals & Reactivation System • We do not support fraudulent activity.</p>
+      <p>&copy; <span id="year"></span> HM Treasury. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- SANCTION DETAIL POPUP -->
+  <div id="offenceOverlay" class="overlay">
+    <div class="popup">
+      <div class="popup-header">
+        Public Sanction Notice
+        <button class="popup-close" onclick="closeOffencePopup()">×</button>
+      </div>
+      <div class="popup-body">
+        <h2 id="popupCompany" style="margin:0 0 20px; color:#dc2626; font-size:28px;"></h2>
+        <p><strong>Address:</strong> <span id="popupAddress"></span></p>
+        <p><strong>Offence:</strong> <span id="popupOffence"></span></p>
+        <p><strong>Appeal Deadline:</strong> <span id="popupDeadline" class="deadline"></span></p>
+        <p style="margin-top:40px; font-size:20px; color:#7f1d1d;">
+          Submit your appeal now to request review.
+        </p>
+        <button class="appeal-btn" onclick="openAppealForCompany()">Submit Appeal for This Company</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPEAL FORM POPUP -->
+  <!-- APPEAL FORM POPUP (Scrollable & Centered) -->
+<!-- Appeal Form Popup (scrollable) -->
+  <div class="form-popup" id="formPopup">
+    <div class="form-container">
+      <div class="form-header">
+        Submit Your Appeal
+        <button class="form-close" onclick="closePopup()">✕</button>
+      </div>
+      <div class="form-body">
+        <form id="appealForm">
+          <p style="text-align:center; font-size:18px; color:#dc2626; margin-bottom:20px;">
+            Your Appeal ID: <strong id="appealIdDisplay" style="font-size:24px;">Loading...</strong>
+          </p>
+          <p style="text-align:center;">Save this ID — you’ll need it to check your status later.</p>
+          <input type="hidden" id="appealIdHidden" />
+          <!-- all your form fields (unchanged) -->
+          <label style="display:block; margin:20px 0 5px; font-weight:600;">Company Name *</label>
+          <input name="companyName" required style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px;" />
+          <label style="display:block; margin:20px 0 5px; font-weight:600;">Company Address *</label>
+          <input name="companyAddress" required style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px;" />
+          <label style="display:block; margin:20px 0 5px; font-weight:600;">Company Email *</label>
+          <input name="companyEmail" type="email" required style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px;" />
+          <label style="display:block; margin:20px 0 5px; font-weight:600;">Contact Person (Optional)</label>
+          <input name="contactPerson" style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px;" />
+          <label style="display:block; margin:20px 0 5px; font-weight:600;">Reason / Message *</label>
+          <textarea name="message" required rows="7" style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px; resize:vertical;"></textarea>
+          <div style="margin-top:30px; text-align:center;">
+            <button type="submit" style="background:#dc2626; color:white; padding:18px 70px; font-size:20px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">
+              Submit Appeal
+            </button>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS MESSAGE OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <h2>✓ Appeal Submitted Successfully!</h2>
+    <p>Please save your Appeal ID. You will need it to check the status of your appeal later.</p>
+    <div class="appeal-code" id="finalAppealId"></div>
+    <button class="copy-btn" onclick="copyAppealId()">Copy ID</button>
+    <br><br>
+    <button onclick="closeSuccess()" style="background:#475569; color:white; padding:12px 40px; border:none; border-radius:10px; cursor:pointer; font-size:16px;">
+      Close
+    </button>
+  </div>
+</div>
+<!-- STATUS RESULT OVERLAY - THIS WAS MISSING! -->
+<div class="success-overlay" id="statusOverlay" style="display:none;">
+  <div class="success-box" style="max-width:600px; text-align:left; padding:40px;">
+    <h2 style="text-align:center; color:#dc2626; margin-bottom:30px;">Appeal Status</h2>
+    <div id="statusResult" style="font-size:18px; line-height:1.8;"></div>
+    <div style="text-align:center; margin-top:40px;">
+      <button onclick="closeStatus()" style="background:#475569; color:white; padding:14px 40px; border:none; border-radius:10px; cursor:pointer; font-size:17px;">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+  <!-- Firebase COMPAT (critical for admin posts to show) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
+      authDomain: "treasure-f5cc7.firebaseapp.com",
+      projectId: "treasure-f5cc7",
+      storageBucket: "treasure-f5cc7.firebasestorage.app",
+      messagingSenderId: "726318121382",
+      appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67",
+      measurementId: "G-E3MBP4PH90"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let currentCompanyForAppeal = '';
+
+    // Generate unique appeal ID
+    function generateAppealId() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let result = 'APL-';
+      for (let i = 0; i < 6; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    async function loadOffences() {
+      try {
+        const snap = await db.collection('public_offences').orderBy('postedAt', 'desc').get();
+        const container = document.getElementById('offencesContainer');
+        const noMsg = document.getElementById('noOffences');
+
+        if (snap.empty) {
+          noMsg.style.display = 'block';
+          container.innerHTML = '';
+          return;
+        }
+
+        noMsg.style.display = 'none';
+        container.innerHTML = '';
+
+        snap.forEach(doc => {
+          const d = doc.data();
+          const div = document.createElement('div');
+          div.className = 'offence-item';
+          div.onclick = () => showOffenceDetail(d);
+
+          const deadline = new Date(d.appealDeadline);
+          const daysLeft = Math.ceil((deadline - new Date()) / 86400000);
+          const urgent = daysLeft <= 10 ? 'badge' : '';
+
+          div.innerHTML = `
+            <div class="company-name">${escapeHtml(d.companyName)}</div>
+            <div style="margin:15px 0; color:#444;"><strong>Offence:</strong> ${escapeHtml(d.offence)}</div>
+            <div class="deadline">
+              Appeal Deadline: ${deadline.toLocaleDateString('en-GB', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}
+              ${daysLeft > 0 ? `<span class="${urgent}">(${daysLeft} days left)</span>` : '<span class="badge">EXPIRED</span>'}
+            </div>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function showOffenceDetail(data) {
+      currentCompanyForAppeal = data.companyName;
+      document.getElementById('popupCompany').textContent = data.companyName;
+      document.getElementById('popupAddress').textContent = data.address || 'Not specified';
+      document.getElementById('popupOffence').textContent = data.offence;
+      document.getElementById('popupDeadline').textContent = new Date(data.appealDeadline).toLocaleDateString('en-GB', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+      document.getElementById('offenceOverlay').style.display = 'flex';
+    }
+
+    function closeOffencePopup() {
+      document.getElementById('offenceOverlay').style.display = 'none';
+    }
+
+    function openAppealForCompany() {
+      closeOffencePopup();
+      const appealId = generateAppealId();
+      document.getElementById('appealIdDisplay').textContent = appealId;
+      document.getElementById('appealIdHidden').value = appealId;
+      document.querySelector('[name="companyName"]').value = currentCompanyForAppeal;
+      openPopup();
+    }
+
+    function openPopup() {
+      if (!document.getElementById('appealIdDisplay').textContent.includes('APL-')) {
+        const appealId = generateAppealId();
+        document.getElementById('appealIdDisplay').textContent = appealId;
+        document.getElementById('appealIdHidden').value = appealId;
+      }
+      document.getElementById('formPopup').style.display = 'flex';
+    }
+
+    function closePopup() {
+      document.getElementById('formPopup').style.display = 'none';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    document.getElementById('offenceOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('offenceOverlay')) closeOffencePopup();
+    });
+
+    loadOffences();
+
+    // Submit Appeal
+    document.getElementById('appealForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const appealId = document.getElementById('appealIdHidden').value;
+    const companyName = document.querySelector('[name="companyName"]').value.trim();
+    const companyAddress = document.querySelector('[name="companyAddress"]').value.trim();
+    const companyEmail = document.querySelector('[name="companyEmail"]').value.trim().toLowerCase();
+    const contactPerson = document.querySelector('[name="contactPerson"]').value.trim();
+    const message = document.querySelector('[name="message"]').value.trim();
+
+    try {
+      await db.collection('appeals').doc(appealId).set({
+        appealId,
+        companyName,
+        companyAddress,
+        companyEmail,
+        contactPerson,
+        message,
+        status: 'Pending',
+        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      // === <<< NEW CODE for POPUP ==== >>>
+      document.getElementById('appealForm').reset();
+      closePopup();
+      document.getElementById('finalAppealId').textContent = appealId;
+      document.getElementById('successOverlay').style.display = 'flex';
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  });
+
+  // === CLOSE SUCCESS POPUP ===
+  function closeSuccess() {
+    document.getElementById('successOverlay').style.display = 'none';
+  }
+
+  // === COPY APPEAL ID ===
+  function copyAppealId() {
+    navigator.clipboard.writeText(document.getElementById('finalAppealId').textContent);
+    const btn = document.querySelector('.copy-btn');
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = old, 2000);
+  }
+
+  // ESC closes everything
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closePopup(); closeSuccess(); closeStatus(); closeOffencePopup();
+    }
+  });
+
+    // Check Status (your original works perfectly)
+// === COPY APPEAL ID ===
+    function copyAppealId() {
+      navigator.clipboard.writeText(document.getElementById('finalAppealId').textContent);
+      const btn = document.querySelector('.copy-btn');
+      const old = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = old, 2000);
+    }
+
+    // === CHECK APPEAL STATUS (NEW) ===
+    async function checkAppealStatus() {
+      let input = document.getElementById('statusInput').value.trim().toUpperCase();
+      if (!input) return alert('Please enter your Appeal ID');
+
+      try {
+        const doc = await db.collection('appeals').doc(input).get();
+        const resultDiv = document.getElementById('statusResult');
+
+        if (!doc.exists) {
+          resultDiv.innerHTML = `<p style="color:#dc2626; font-size:24px;">Appeal ID not found</p><p>Please check and try again.</p>`;
+        } else {
+          const d = doc.data();
+          const date = d.submittedAt ? d.submittedAt.toDate().toLocaleDateString('en-GB', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) : 'N/A';
+          const statusClass = d.status === 'Approved' ? 'status-approved' : d.status === 'Rejected' ? 'status-rejected' : 'status-pending';
+
+          resultDiv.innerHTML = `
+            <h2 style="color:#dc2626; font-size:28px; margin-bottom:20px;">${escapeHtml(d.companyName)}</h2>
+            <p><strong>Appeal ID:</strong> ${d.appealId}</p>
+            <p><strong>Submitted on:</strong> ${date}</p>
+            <p style="margin:30px 0;"><strong>Current Status:</strong><br>
+              <span class="${statusClass}">${d.status || 'Pending'}</span>
+            </p>
+            ${d.adminNotes ? `<p><strong>Admin Notes:</strong><br>${escapeHtml(d.adminNotes)}</p>` : ''}
+          `;
+        }
+        document.getElementById('statusOverlay').style.display = 'flex';
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    // ESC closes everything
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closePopup(); closeSuccess(); closeStatus(); closeOffencePopup();
+      }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closePopup();
+        closeOffencePopup();
+      }
+    });
+    function closeStatus() {
+      document.getElementById('statusOverlay').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
