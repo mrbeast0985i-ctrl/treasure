@@ -3,55 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>HM Treasury Appeals</title>
+  <title>HMT TREASURIES APPEAL</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { margin:0; font-family:system-ui,sans-serif; background:#fff; color:#1e293b; line-height:1.6; }
+    body { margin:0; font-family:system-ui,sans-serif; background:#fff; color:#1e293b; line-height:1.6; overflow-x:hidden; }
     a { color:#dc2626; text-decoration:none; }
     a:hover { text-decoration:underline; }
-
-    /* HEADER - RESPONSIVE NAV */
-    header {
-      background: #1e293b;
-      color: white;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-    .nav-container {
-      max-width:1200px;
-      margin:auto;
-      padding:20px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    .logo {
-      font-size:28px;
-      font-weight:bold;
-    }
-    nav {
-      display: flex;
-      gap: 20px;
-    }
-    nav a {
-      color:white;
-      text-decoration:none;
-      font-weight:600;
-      padding: 8px 0;
-    }
-
-    /* Hamburger Menu Button - Hidden by default */
-    #menuToggle {
-      display: none;
-      background: none;
-      border: none;
-      color: white;
-      font-size: 32px;
-      cursor: pointer;
-    }
 
     /* PUBLIC SANCTIONS LIST */
     #sanctionsSection {
@@ -60,13 +17,13 @@
       text-align: center;
     }
     #sanctionsSection h1 {
-      font-size: 52px;
+      font-size: clamp(36px, 8vw, 52px);
       color: #991b1b;
       font-weight: 900;
       margin: 0 0 20px 0;
     }
     #sanctionsSection p {
-      font-size: 23px;
+      font-size: clamp(18px, 5vw, 23px);
       color: #7f1d1d;
       max-width: 900px;
       margin: 0 auto 60px;
@@ -85,20 +42,20 @@
       cursor: pointer;
       transition: all 0.4s ease;
     }
-    .offence-item:hover {  /* Fixed selector: was .offence:hover */
+    .offence-item:hover {
       background: #fff1f1;
       transform: translateY(-6px);
       box-shadow: 0 15px 40px rgba(220,38,38,0.15);
     }
     .offence-item:last-child { border: none; }
     .company-name {
-      font-size: 28px;
+      font-size: clamp(22px, 6vw, 28px);
       font-weight: bold;
       color: #dc2626;
       margin-bottom: 10px;
     }
     .deadline {
-      font-size: 19px;
+      font-size: clamp(16px, 4.5vw, 19px);
       font-weight: bold;
       color: #991b1b;
     }
@@ -112,23 +69,23 @@
       margin-left: 12px;
     }
 
-    /* POPUPS - ALL RESPONSIVE & CENTERED */
-    .overlay,
-    .form-popup,
-    .success-overlay {
+    /* === RESPONSIVE CENTERED POPUPS THAT SCROLL ON MOBILE === */
+    .overlay {
       display: none;
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.92);
       z-index: 9999;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
       overflow-y: auto;
+      padding: 20px 0;
+      box-sizing: border-box;
     }
-    .popup,
-    .form-container,
-    .success-box {
+    .overlay.active {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .popup {
       background: white;
       width: 95%;
       max-width: 680px;
@@ -136,44 +93,40 @@
       overflow: hidden;
       box-shadow: 0 40px 100px rgba(0,0,0,0.5);
       animation: pop 0.5s ease-out;
+      margin: 20px 0;
       max-height: 95vh;
+      display: flex;
+      flex-direction: column;
     }
-
     @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-    .popup-header,
-    .form-header {
+    .popup-header {
       background: #dc2626;
       color: white;
       padding: 28px;
-      font-size: 30px;
+      font-size: clamp(24px, 7vw, 30px);
       font-weight: bold;
       text-align: center;
       position: relative;
+      flex-shrink: 0;
     }
-    .form-header {
-      padding: 20px 24px;
-      font-size: 22px;
-    }
-    .popup-close,
-    .form-close {
+    .popup-close {
       position: absolute;
-      top: 16px;
-      right: 20px;
+      top: 16px; right: 20px;
       background: none;
       border: none;
-      font-size: 38px;
+      font-size: 44px;
       color: white;
       cursor: pointer;
-      line-height: 1;
+      padding: 0;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .popup-body,
-    .form-body {
-      padding: 45px;
-      font-size: 18px;
-    }
-    .form-body {
+    .popup-body {
       padding: 40px;
+      font-size: 18px;
       overflow-y: auto;
       flex: 1;
     }
@@ -191,30 +144,101 @@
     }
     .appeal-btn:hover { background: #b91c1c; }
 
+    /* FORM POPUP - FULLY SCROLLABLE ON MOBILE */
+    .form-popup {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 9999;
+      overflow-y: auto;
+      padding: 15px 0;
+      box-sizing: border-box;
+    }
+    .form-popup.active {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
     .form-container {
+      background: white;
+      width: 95%;
       max-width: 620px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.4);
+      animation: pop 0.45s ease-out;
       max-height: 95vh;
       display: flex;
       flex-direction: column;
     }
+    .form-header {
+      background: #dc2626;
+      color: white;
+      padding: 20px 24px;
+      text-align: center;
+      font-size: clamp(20px, 6vw, 22px);
+      font-weight: bold;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .form-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 36px;
+      cursor: pointer;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .form-body {
+      padding: 40px;
+      overflow-y: auto;
+      flex: 1;
+    }
 
-    /* SUCCESS BOX */
+    /* SUCCESS & STATUS OVERLAYS - ALSO SCROLLABLE */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 10000;
+      overflow-y: auto;
+      padding: 20px 0;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .success-overlay.active {
+      display: flex;
+    }
     .success-box {
+      background: white;
       max-width: 500px;
-      width: 90%;
+      width: 95%;
+      border-radius: 20px;
       text-align: center;
       padding: 50px 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      animation: pop 0.5s ease-out;
+      margin: 20px 0;
     }
     .success-box h2 {
       color: #16a34a;
-      font-size: 32px;
+      font-size: clamp(28px, 8vw, 32px);
       margin-bottom: 20px;
     }
     .appeal-code {
       background: #f0fdf4;
       border: 2px dashed #16a34a;
       color: #166534;
-      font-size: 28px;
+      font-size: clamp(22px, 7vw, 28px);
       font-weight: bold;
       padding: 20px;
       border-radius: 12px;
@@ -234,90 +258,95 @@
     }
     .copy-btn:hover { background: #15803d; }
 
-    /* HERO & SECTIONS - RESPONSIVE FONTS */
-    .hero h1 { font-size: 48px; }
-    .hero p { font-size: 22px; }
-    #checkstatus h2 { font-size: 42px; }
+    /* Prevent background scroll when popup is open */
+    body.popup-open {
+      overflow: hidden;
+      height: 100vh;
+    }
 
-    /* RESPONSIVE BREAKPOINTS */
-    @media (max-width: 900px) {
-      #sanctionsSection h1 { font-size: 42px; }
-      #sanctionsSection p { font-size: 20px; }
-      .company-name { font-size: 24px; }
-      .offence-item { padding: 24px; }
-      .hero h1 { font-size: 40px; }
-      .hero p { font-size: 19px; }
-      #checkstatus h2 { font-size: 36px; }
+    /* Mobile adjustments (extends responsive features) */
+    @media (max-width: 992px) {
+      .nav-container {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+        align-items: flex-start !important;
+      }
+      nav {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+      }
+      nav a {
+        margin: 0;
+        font-size: 17px;
+        padding: 7px 0;
+        color: white !important;
+        font-weight: 600;
+      }
+      header .logo {
+        font-size: 24px !important;
+        margin-bottom: 10px;
+      }
+      section.hero {
+        padding: 66px 10px !important;
+      }
+      #checkstatus {
+        padding: 66px 10px !important;
+      }
     }
 
     @media (max-width: 768px) {
-      /* Mobile Menu */
-      nav {
-        position: fixed;
-        top: 80px;
-        left: 0;
-        right: 0;
-        background: #1e293b;
-        flex-direction: column;
-        text-align: center;
-        padding: 20px 0;
-        display: none; /* hidden by default */
-        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-      }
-      nav.active { display: flex; }
-      #menuToggle { display: block; }
-
-      .nav-container { padding: 16px 20px; }
-      .logo { font-size: 24px; }
-
-      #sanctionsSection { padding: 70px 15px; }
-      #sanctionsSection h1 { font-size: 36px; }
-      .offence-item { padding: 20px; }
-      .popup-body, .form-body { padding: 30px 20px; }
-      .popup-header, .form-header { font-size: 26px; padding: 20px; }
+      .popup-body, .form-body { padding: 30px 15px; }
+      .offence-item { padding: 19px; font-size: 15px; }
+      .company-name { font-size: 19px; }
+      .nav-container { flex-direction: column; gap: 14px; padding: 10px; }
+      nav a { margin: 0 5px; font-size: 15px; }
+      section.hero { padding: 40px 7px !important; }
+      #checkstatus { padding: 40px 7px !important; }
+      .success-box, .popup, .form-container { padding: 12px; max-width: 99vw !important; width: 99vw !important; }
+      footer { padding: 42px 7px !important; font-size: 15px !important; }
+      .emails, .address { font-size:15px; }
     }
 
     @media (max-width: 480px) {
-      #sanctionsSection h1 { font-size: 32px; }
-      #sanctionsSection p { font-size: 18px; }
-      .company-name { font-size: 22px; }
-      .deadline { font-size: 17px; }
-      .hero { padding: 80px 15px; }
-      .hero h1 { font-size: 34px; }
-      .hero p { font-size: 18px; }
-      .btn, button { font-size: 18px !important; padding: 14px 20px !important; }
-      .appeal-btn { font-size: 20px; padding: 16px; }
-      .success-box { padding: 40px 20px; }
-      .appeal-code { font-size: 24px; }
+      .popup-body, .form-body { padding: 14px 3px; font-size:15px; }
+      .form-header, .popup-header { padding:15px 5px; font-size:18px; }
+      .appeal-btn { font-size: 16px; padding: 12px; }
+      .copy-btn { font-size:15px; padding:10px 17px; }
+      #sanctionsSection { padding: 42px 6px; }
+      .offence-list { border-radius: 9px; }
+      .company-name { font-size: 16px; }
+      .success-box { padding: 20px 4px; }
+      section.hero, #checkstatus, section.section { padding:20px 3px !important; }
+      footer { padding:22px 4px !important;}
     }
   </style>
 </head>
 <body>
 
-  <!-- RESPONSIVE HEADER WITH HAMBURGER -->
   <header>
-    <div class="nav-container">
-      <div class="logo">HM Treasury Appeals</div>
-      <button id="menuToggle" aria-label="Menu">☰</button>
-      <nav id="mainNav">
-        <a href="#sanctions">Sanctions List</a>
-        <a href="#mission">Mission</a>
-        <a href="#whyus">Why Choose Us</a>
-        <a href="#policies">Policies</a>
+    <div class="nav-container" style="max-width:1200px; margin:auto; padding:20px; display:flex; justify-content:space-between; align-items:center;">
+      <div class="logo" style="font-size:28px; font-weight:bold;">HMT TREASURIES APPEAL </div>
+      <nav>
+        <a href="#sanctions" style="margin:0 15px; color:white; text-decoration:none; font-weight:600;">Sanctions List</a>
+        <a href="#mission" style="margin:0 15px; color:white; text-decoration:none; font-weight:600;">Mission</a>
+        <a href="#whyus" style="margin:0 15px; color:white; text-decoration:none; font-weight:600;">Why Choose Us</a>
+        <a href="#policies" style="margin:0 15px; color:white; text-decoration:none; font-weight:600;">Policies</a>
       </nav>
     </div>
   </header>
-
   <main>
+
     <!-- HERO -->
     <section class="hero" style="text-align:center; padding:100px 20px; background:#f8fafc;">
-      <h1 style="font-size:48px; color:#1e293b; margin:0;">HM Treasury Appeals</h1>
+      <h1 style="font-size:48px; color:#1e293b;">HMT TREASURIES APPEAL</h1>
       <p style="font-size:22px; max-width:900px; margin:30px auto; color:#475569;">
         Submit an appeal, upload supporting documents, and request a formal review for the restoration of your services.
       </p>
       <button class="btn" onclick="openPopup()" style="background:#dc2626; color:white; padding:16px 40px; font-size:20px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">Submit an Appeal</button>
     </section>
-
     <section id="checkstatus" style="padding:100px 20px; background:#1e293b; color:white; text-align:center;">
       <div style="max-width:900px; margin:auto;">
         <h2 style="font-size:42px; margin-bottom:20px;">Check Your Appeal Status</h2>
@@ -355,16 +384,33 @@
         <p style="font-size:19px; text-align:center; max-width:800px; margin:30px auto;"><strong>Vision:</strong> Be the industry standard...</p>
       </div>
     </section>
+
   </main>
 
+  <!-- FOOTER (with two emails and address, and mobile responsiveness) -->
   <footer style="background:#1e293b; color:white; padding:60px 20px; text-align:center;">
+    <div class="contacts" style="margin-bottom:14px;">
+      <div class="emails" style="margin-bottom:8px;">
+        <span style="display:inline-block; margin:0 7px;">
+          📧 <a style="color:#fda4af;" href="mailto:public.enquiries@hm-treasury.uk">public.enquiries@hm-treasury.uk</a>
+        </span>
+        <span style="display:inline-block; margin:0 7px;">
+          📧 <a style="color:#fda4af;" href="mailto:support@hm-treasury.uk">finance@hm-treasury.uk</a>
+        </span>
+      </div>
+      <div class="address" style="margin-bottom:8px;">
+        <span style="display:inline-block;">
+          🏢 1 Horse Guards Road, London, SW1A 2HQ, United Kingdom
+        </span>
+      </div>
+    </div>
     <div style="max-width:1100px; margin:auto;">
       <p style="font-size:18px;">HM Treasury — Appeals & Reactivation System • We do not support fraudulent activity.</p>
       <p>&copy; <span id="year"></span> HM Treasury. All rights reserved.</p>
     </div>
   </footer>
 
-  <!-- ALL POPUPS (unchanged structure, now fully responsive) -->
+  <!-- SANCTION DETAIL POPUP -->
   <div id="offenceOverlay" class="overlay">
     <div class="popup">
       <div class="popup-header">
@@ -384,6 +430,7 @@
     </div>
   </div>
 
+  <!-- APPEAL FORM POPUP -->
   <div class="form-popup" id="formPopup">
     <div class="form-container">
       <div class="form-header">
@@ -397,22 +444,16 @@
           </p>
           <p style="text-align:center;">Save this ID — you’ll need it to check your status later.</p>
           <input type="hidden" id="appealIdHidden" />
-          
           <label style="display:block; margin:20px 0 5px; font-weight:600;">Company Name *</label>
           <input name="companyName" required style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px;" />
-          
           <label style="display:block; margin:20px 0 5px; font-weight:600;">Company Address *</label>
           <input name="companyAddress" required style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px;" />
-          
           <label style="display:block; margin:20px 0 5px; font-weight:600;">Company Email *</label>
           <input name="companyEmail" type="email" required style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px;" />
-          
           <label style="display:block; margin:20px 0 5px; font-weight:600;">Contact Person (Optional)</label>
           <input name="contactPerson" style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px;" />
-          
           <label style="display:block; margin:20px 0 5px; font-weight:600;">Reason / Message *</label>
           <textarea name="message" required rows="7" style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px; resize:vertical;"></textarea>
-          
           <div style="margin-top:30px; text-align:center;">
             <button type="submit" style="background:#dc2626; color:white; padding:18px 70px; font-size:20px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">
               Submit Appeal
@@ -423,6 +464,7 @@
     </div>
   </div>
 
+  <!-- SUCCESS MESSAGE OVERLAY -->
   <div class="success-overlay" id="successOverlay">
     <div class="success-box">
       <h2>✓ Appeal Submitted Successfully!</h2>
@@ -436,7 +478,8 @@
     </div>
   </div>
 
-  <div class="success-overlay" id="statusOverlay" style="display:none;">
+  <!-- STATUS RESULT OVERLAY -->
+  <div class="success-overlay" id="statusOverlay">
     <div class="success-box" style="max-width:600px; text-align:left; padding:40px;">
       <h2 style="text-align:center; color:#dc2626; margin-bottom:30px;">Appeal Status</h2>
       <div id="statusResult" style="font-size:18px; line-height:1.8;"></div>
@@ -448,26 +491,12 @@
     </div>
   </div>
 
-  <!-- Firebase -->
+  <!-- Firebase COMPAT -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
   <script>
-    // Hamburger Menu Toggle
-    document.getElementById('menuToggle').addEventListener('click', () => {
-      document.getElementById('mainNav').classList.toggle('active');
-    });
-
-    // Close mobile menu when clicking a link
-    document.querySelectorAll('#mainNav a').forEach(link => {
-      link.addEventListener('click', () => {
-        if (window.innerWidth <= 768) {
-          document.getElementById('mainNav').classList.remove('active');
-        }
-      });
-    });
-
     document.getElementById('year').textContent = new Date().getFullYear();
 
     const firebaseConfig = {
@@ -540,11 +569,13 @@
       document.getElementById('popupAddress').textContent = data.address || 'Not specified';
       document.getElementById('popupOffence').textContent = data.offence;
       document.getElementById('popupDeadline').textContent = new Date(data.appealDeadline).toLocaleDateString('en-GB', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
-      document.getElementById('offenceOverlay').style.display = 'flex';
+      document.getElementById('offenceOverlay').classList.add('active');
+      document.body.classList.add('popup-open');
     }
 
     function closeOffencePopup() {
-      document.getElementById('offenceOverlay').style.display = 'none';
+      document.getElementById('offenceOverlay').classList.remove('active');
+      document.body.classList.remove('popup-open');
     }
 
     function openAppealForCompany() {
@@ -562,11 +593,13 @@
         document.getElementById('appealIdDisplay').textContent = appealId;
         document.getElementById('appealIdHidden').value = appealId;
       }
-      document.getElementById('formPopup').style.display = 'flex';
+      document.getElementById('formPopup').classList.add('active');
+      document.body.classList.add('popup-open');
     }
 
     function closePopup() {
-      document.getElementById('formPopup').style.display = 'none';
+      document.getElementById('formPopup').classList.remove('active');
+      document.body.classList.remove('popup-open');
     }
 
     function escapeHtml(text) {
@@ -575,12 +608,26 @@
       return div.innerHTML;
     }
 
+    // Close on overlay click
     document.getElementById('offenceOverlay').addEventListener('click', e => {
       if (e.target === document.getElementById('offenceOverlay')) closeOffencePopup();
     });
 
+    document.getElementById('formPopup').addEventListener('click', e => {
+      if (e.target === document.getElementById('formPopup')) closePopup();
+    });
+
+    document.getElementById('successOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('successOverlay')) closeSuccess();
+    });
+
+    document.getElementById('statusOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('statusOverlay')) closeStatus();
+    });
+
     loadOffences();
 
+    // Submit Appeal
     document.getElementById('appealForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const appealId = document.getElementById('appealIdHidden').value;
@@ -605,14 +652,16 @@
         document.getElementById('appealForm').reset();
         closePopup();
         document.getElementById('finalAppealId').textContent = appealId;
-        document.getElementById('successOverlay').style.display = 'flex';
+        document.getElementById('successOverlay').classList.add('active');
+        document.body.classList.add('popup-open');
       } catch (err) {
         alert('Error: ' + err.message);
       }
     });
 
     function closeSuccess() {
-      document.getElementById('successOverlay').style.display = 'none';
+      document.getElementById('successOverlay').classList.remove('active');
+      document.body.classList.remove('popup-open');
     }
 
     function copyAppealId() {
@@ -622,12 +671,6 @@
       btn.textContent = 'Copied!';
       setTimeout(() => btn.textContent = old, 2000);
     }
-
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        closePopup(); closeSuccess(); closeStatus(); closeOffencePopup();
-      }
-    });
 
     async function checkAppealStatus() {
       let input = document.getElementById('statusInput').value.trim().toUpperCase();
@@ -654,15 +697,27 @@
             ${d.adminNotes ? `<p><strong>Admin Notes:</strong><br>${escapeHtml(d.adminNotes)}</p>` : ''}
           `;
         }
-        document.getElementById('statusOverlay').style.display = 'flex';
+        document.getElementById('statusOverlay').classList.add('active');
+        document.body.classList.add('popup-open');
       } catch (err) {
         alert('Error: ' + err.message);
       }
     }
 
     function closeStatus() {
-      document.getElementById('statusOverlay').style.display = 'none';
+      document.getElementById('statusOverlay').classList.remove('active');
+      document.body.classList.remove('popup-open');
     }
+
+    // ESC closes everything
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closePopup();
+        closeOffencePopup();
+        closeSuccess();
+        closeStatus();
+      }
+    });
   </script>
 </body>
 </html>
