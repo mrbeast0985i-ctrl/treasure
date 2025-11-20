@@ -1,92 +1,390 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HM Treasury - Admin Panel</title>
   <style>
-    body { font-family: system-ui, sans-serif; background:#f1f5f9; color:#1e293b; margin:0; }
-    .container { max-width:1200px; margin:0 auto; padding:20px; }
-    header { background:#1e293b; color:white; padding:16px 0; }
-    .logo { font-size:26px; font-weight:bold; margin-left:20px; }
-    .login { background:white; padding:30px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.1); max-width:400px; margin:40px auto; }
-    .input, .btn { width:100%; padding:14px; margin:10px 0; border-radius:10px; border:1px solid #cbd5e1; font-size:16px; }
-    .btn { background:#3b82f6; color:white; cursor:pointer; font-weight:600; border:none; }
-    .btn:hover { background:#2563eb; }
-    .btn-success { background:#16a34a; }
-    .btn-danger { background:#dc2626; }
-    .btn-warning { background:#ea580c; }
-    table { width:100%; border-collapse:collapse; background:white; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.1); margin-top:20px; }
-    th { background:#1e293b; color:white; padding:18px; text-align:left; font-weight:600; }
-    td { padding:16px; border-bottom:1px solid #e2e8f0; vertical-align:top; }
-    tr:hover { background:#f8fafc; }
-    .status-badge { padding:6px 12px; border-radius:50px; color:white; font-size:13px; font-weight:bold; }
-    .pending { background:#ea580c; }
-    .review { background:#0ea5e9; }
-    .approved { background:#16a34a; }
-    .rejected { background:#dc2626; }
-    .load-btn, .post-btn { background:#dc2626; padding:18px 40px; font-size:18px; margin:20px 10px 20px 0; display:inline-block; }
+    :root {
+      --primary: #dc2626;
+      --success: #16a34a;
+      --warning: #ea580c;
+      --info: #0ea5e9;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --gray: #f1e293b;
+    }
 
-    /* POPUP FOR POSTING SANCTION */
-    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; padding:20px; }
-    .popup-box { background:white; max-width:600px; width:100%; border-radius:20px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.5); animation:pop 0.4s ease-out; }
-    @keyframes pop { from { transform:scale(0.8); opacity:0; } to { transform:scale(1); opacity:1; } }
-    .popup-header { background:#dc2626; color:white; padding:20px; text-align:center; font-size:22px; font-weight:bold; position:relative; }
-    .close-popup { position:absolute; top:10px; right:16px; background:none; border:none; color:white; font-size:32px; cursor:pointer; }
-    .popup-body { padding:40px; }
-    .popup-body label { display:block; margin:16px 0 6px; font-weight:600; }
-    .popup-body input, .popup-body textarea { width:100%; padding:14px; border-radius:10px; border:1px solid #cbd5e1; font-size:16px; }
-    #postMsg { margin-top:16px; font-weight:600; text-align:center; }
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 16px 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .logo {
+      font-size: 26px;
+      font-weight: bold;
+    }
+    .back-link {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+    .back-link:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Login Box */
+    .login {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+      max-width: 420px;
+      margin: 60px auto;
+      text-align: center;
+    }
+    .login h2 {
+      margin-bottom: 30px;
+      color: var(--dark);
+      font-size: 28px;
+    }
+    .input {
+      width: 100%;
+      padding: 16px;
+      margin: 12px 0;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      font-size: 17px;
+      transition: border 0.3s;
+    }
+    .input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.15);
+    }
+    .btn {
+      width: 100%;
+      padding: 16px;
+      margin: 16px 0;
+      border-radius: 12px;
+      border: none;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-primary:hover { background: #2563eb; }
+
+    /* Admin Panel */
+    #adminPanel {
+      animation: fadeIn 0.6s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1 {
+      margin: 20px 0 10px;
+      color: var(--primary);
+      font-size: clamp(28px, 5vw, 36px);
+    }
+    #adminPanel > p {
+      font-size: 18px;
+      margin-bottom: 30px;
+      color: #475569;
+    }
+    #adminPanel > p strong { color: var(--dark); }
+
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 30px 0;
+    }
+    .load-btn, .post-btn {
+      background: var(--primary);
+      color: white;
+      padding: 18px 32px;
+      font-size: 18px;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+      box-shadow: 0 6px 20px rgba(220,38,38,0.25);
+    }
+    .load-btn { background: #3b82f6; box-shadow: 0 6px 20px rgba(59,130,246,0.3); }
+    .load-btn:hover { background: #2563eb; transform: translateY(-2px); }
+    .post-btn:hover { background: #b91c1c; transform: translateY(-2px); }
+
+    /* Responsive Table Wrapper */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      margin-top: 20px;
+      background: white;
+    }
+    table {
+      width: 100%;
+      min-width: 900px;
+      border-collapse: collapse;
+    }
+    th {
+      background: var(--dark);
+      color: white;
+      padding: 20px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 18px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+      font-size: 15px;
+    }
+    tr:hover {
+      background: #f8fafc;
+    }
+    .status-badge {
+      padding: 8px 14px;
+      border-radius: 50px;
+      color: white;
+      font-size: 13px;
+      font-weight: bold;
+      display: inline-block;
+    }
+    .pending { background: var(--warning); }
+    .review { background: var(--info); }
+    .approved { background: var(--success); }
+    .rejected { background: var(--primary); }
+
+    .action-btn {
+      padding: 8px 14px;
+      margin: 4px 2px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--primary); color: white; }
+    .btn-warning { background: var(--warning); color: white; }
+    .btn-notes { background: #64748b; color: white; }
+    .btn-delete { background: #991b1b; color: white; } /* Darker red for delete */
+    .action-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Empty & Loading States */
+    #noAppeals, #loading {
+      text-align: center;
+      padding: 60px 20px;
+      background: white;
+      border-radius: 16px;
+      margin-top: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    #loading h3 { color: #64748b; }
+
+    /* Popup */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .popup-box {
+      background: white;
+      max-width: 620px;
+      width: 95%;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      animation: pop 0.45s ease-out;
+      max-height: 95vh;
+      display: flex;
+      flex-direction: column;
+    }
+    @keyframes pop {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .popup-header {
+      background: var(--primary);
+      color: white;
+      padding: 24px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      position: relative;
+    }
+    .close-popup {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 36px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .popup-body {
+      padding: 40px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .popup-body label {
+      display: block;
+      margin: 20px 0 8px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .popup-body input,
+    .popup-body textarea {
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      font-size: 16px;
+      font-family: inherit;
+    }
+    .popup-body textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    #postMsg {
+      margin-top: 20px;
+      font-weight: 600;
+      text-align: center;
+      min-height: 24px;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .header-container { padding: 0 16px; }
+      .logo { font-size: 22px; }
+      .action-buttons { justify-content: center; }
+      .load-btn, .post-btn {
+        padding: 16px 24px;
+        font-size: 17px;
+        flex: 1 1 200px;
+        text-align: center;
+      }
+      .login {
+        margin: 40px 20px;
+        padding: 30px 20px;
+      }
+      .popup-body { padding: 30px 25px; }
+    }
+
+    @media (max-width: 480px) {
+      th, td { padding: 14px 10px; font-size: 14px; }
+      .action-btn {
+        display: block;
+        width: 100%;
+        margin: 6px 0;
+      }
+    }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
+  <div class="header-container">
     <div class="logo">HM Treasury Admin</div>
-    <a href="index.html" style="color:white; text-decoration:none; font-weight:500;">← Back to Public Site</a>
+    <a href="index.html" class="back-link">Back to Public Site</a>
   </div>
 </header>
 
 <div class="container">
 
-  <!-- Login -->
+  <!-- Login Box -->
   <div id="loginBox" class="login">
-    <h2 style="text-align:center; color:#1e293b;">Admin Login</h2>
-    <input id="email" class="input" placeholder="admin@example.com" type="email" />
-    <input id="pass" class="input" placeholder="Password" type="password" />
-    <button class="btn" onclick="login()">Sign In</button>
-    <p id="loginMsg" style="margin-top:15px; text-align:center; font-weight:500;"></p>
+    <h2>Admin Login</h2>
+    <input id="email" class="input" placeholder="admin@example.com" type="email" required />
+    <input id="pass" class="input" placeholder="Password" type="password" required />
+    <button class="btn btn-primary" onclick="login()">Sign In</button>
+    <p id="loginMsg" style="margin-top:15px; font-weight:500;"></p>
   </div>
 
   <!-- Admin Panel -->
   <div id="adminPanel" style="display:none;">
-    <h1 style="margin-top:0; color:#dc2626;">Appeals & Sanctions Management</h1>
+    <h1>Appeals & Sanctions Management</h1>
     <p>Welcome back, <strong id="adminName"></strong></p>
 
-    <div style="margin:30px 0;">
-      <button class="btn load-btn" onclick="loadAllAppeals()">Load All Appeals</button>
-      <button class="btn post-btn" onclick="openPostPopup()">+ Publish New Sanction</button>
+    <div class="action-buttons">
+      <button class="load-btn" onclick="loadAllAppeals()">Load All Appeals</button>
+      <button class="post-btn" onclick="openPostPopup()">+ Publish New Sanction</button>
     </div>
 
-    <div id="loading" style="text-align:center; padding:40px; display:none;"><h3>Loading...</h3></div>
+    <div id="loading" style="display:none;"><h3>Loading appeals, please wait...</h3></div>
 
-    <table id="appealsTable" style="display:none;">
-      <thead>
-        <tr>
-          <th>Appeal ID</th>
-          <th>Company</th>
-          <th>Email</th>
-          <th>Message</th>
-          <th>Submitted</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="table-container">
+      <table id="appealsTable" style="display:none;">
+        <thead>
+          <tr>
+            <th>Appeal ID</th>
+            <th>Company</th>
+            <th>Email</th>
+            <th>Message</th>
+            <th>Submitted</th>
+            <th>Status</th>
+            <th style="width:260px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-    <div id="noAppeals" style="text-align:center; padding:60px; background:white; border-radius:16px; margin-top:20px; display:none;">
+    <div id="noAppeals" style="display:none;">
       <h3>No appeals found.</h3>
+      <p>Appeals will appear here when submitted from the public site.</p>
     </div>
   </div>
 </div>
@@ -112,7 +410,7 @@
       <input id="offDeadline" type="date" required />
 
       <div style="margin-top:30px; text-align:center;">
-        <button class="btn btn-danger" style="padding:16px 40px; font-size:18px;" onclick="publishSanction()">
+        <button class="btn" style="background:var(--primary); color:white; padding:16px 40px; font-size:18px;" onclick="publishSanction()">
           Publish to Public List
         </button>
       </div>
@@ -135,14 +433,20 @@
     messagingSenderId: "726318121382",
     appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67"
   };
+
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
 
   // Login
   function login() {
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.trim();
     const pass = document.getElementById('pass').value;
+    if (!email || !pass) {
+      document.getElementById('loginMsg').textContent = 'Please enter email and password';
+      document.getElementById('loginMsg').style.color = 'red';
+      return;
+    }
     auth.signInWithEmailAndPassword(email, pass)
       .catch(err => {
         document.getElementById('loginMsg').textContent = 'Login failed: ' + err.message;
@@ -150,7 +454,7 @@
       });
   }
 
-  // Auth State
+  // Auth State Listener
   auth.onAuthStateChanged(user => {
     if (!user) {
       document.getElementById('loginBox').style.display = 'block';
@@ -162,7 +466,7 @@
     document.getElementById('adminName').textContent = user.email;
   });
 
-  // === APPEALS TABLE (unchanged from previous working version) ===
+  // Load Appeals
   async function loadAllAppeals() {
     document.getElementById('loading').style.display = 'block';
     document.getElementById('appealsTable').style.display = 'none';
@@ -183,23 +487,24 @@
         const d = doc.data();
         const date = d.submittedAt ? d.submittedAt.toDate().toLocaleString('en-GB') : '—';
         const status = d.status || 'Pending';
-        const badgeClass = status === 'Approved' ? 'approved' : 
-                          status === 'Rejected' ? 'rejected' : 
+        const badgeClass = status === 'Approved' ? 'approved' :
+                          status === 'Rejected' ? 'rejected' :
                           status === 'Under Review' ? 'review' : 'pending';
 
         const row = document.createElement('tr');
         row.innerHTML = `
           <td><strong>${escapeHtml(d.appealId)}</strong></td>
-          <td><strong>${escapeHtml(d.companyName)}</strong><br>${escapeHtml(d.companyAddress || '')}</td>
+          <td><strong>${escapeHtml(d.companyName)}</strong><br><small>${escapeHtml(d.companyAddress || '')}</small></td>
           <td>${escapeHtml(d.companyEmail)}<br><small>${escapeHtml(d.contactPerson || '—')}</small></td>
-          <td style="max-width:300px;">${escapeHtml(d.message).replace(/\n/g, '<br>')}</td>
+          <td style="max-width:300px; word-wrap:break-word;">${escapeHtml(d.message).replace(/\n/g, '<br>')}</td>
           <td>${date}</td>
           <td><span class="status-badge ${badgeClass}">${status}</span></td>
           <td>
-            <button class="btn btn-success" style="padding:8px 14px; margin:4px;" onclick="updateStatus('${doc.id}', 'Approved')">Approve</button>
-            <button class="btn btn-danger" style="padding:8px 14px; margin:4px;" onclick="updateStatus('${doc.id}', 'Rejected')">Reject</button>
-            <button class="btn btn-warning" style="padding:8px 14px; margin:4px; color:white;" onclick="updateStatus('${doc.id}', 'Under Review')">Review</button>
-            <button class="btn" style="padding:8px 14px; margin:4px; background:#64748b;" onclick="addNotes('${doc.id}', '${escapeJs(d.adminNotes || '')}')">Notes</button>
+            <button class="action-btn btn-success" onclick="updateStatus('${doc.id}', 'Approved')">Approve</button>
+            <button class="action-btn btn-danger" onclick="updateStatus('${doc.id}', 'Rejected')">Reject</button>
+            <button class="action-btn btn-warning" onclick="updateStatus('${doc.id}', 'Under Review')">Review</button>
+            <button class="action-btn btn-notes" onclick="addNotes('${doc.id}', '${escapeJs(d.adminNotes || '')}')">Notes</button>
+            <button class="action-btn btn-delete" onclick="deleteAppeal('${doc.id}')">Delete</button>
           </td>
         `;
         tbody.appendChild(row);
@@ -207,34 +512,59 @@
 
       document.getElementById('appealsTable').style.display = 'table';
     } catch (err) {
-      alert('Error: ' + err.message);
+      alert('Error loading appeals: ' + err.message);
     } finally {
       document.getElementById('loading').style.display = 'none';
     }
   }
 
+  // Update Status
   async function updateStatus(id, status) {
     if (!confirm(`Change status to "${status}"?`)) return;
-    await db.collection('appeals').doc(id).update({
-      status,
-      reviewedBy: auth.currentUser.email,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    loadAllAppeals();
+    try {
+      await db.collection('appeals').doc(id).update({
+        status,
+        reviewedBy: auth.currentUser.email,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      loadAllAppeals();
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
   }
 
+  // Add Notes
   async function addNotes(id, current) {
-    const notes = prompt('Admin Notes:', current);
+    const notes = prompt('Admin Notes (optional):', current);
     if (notes === null) return;
-    await db.collection('appeals').doc(id).update({
-      adminNotes: notes,
-      reviewedBy: auth.currentUser.email,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    alert('Notes saved');
+    try {
+      await db.collection('appeals').doc(id).update({
+        adminNotes: notes.trim(),
+        reviewedBy: auth.currentUser.email,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert('Notes saved');
+    } catch (err) {
+      alert('Error saving notes: ' + err.message);
+    }
   }
 
-  // === POST SANCTION POPUP ===
+  // NEW: Delete Appeal
+  async function deleteAppeal(id) {
+    if (!confirm('Are you sure you want to PERMANENTLY DELETE this appeal?\n\nThis action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await db.collection('appeals').doc(id).delete();
+      alert('Appeal deleted successfully.');
+      loadAllAppeals(); // Refresh the list
+    } catch (err) {
+      alert('Error deleting appeal: ' + err.message);
+    }
+  }
+
+  // Publish Sanction
   function openPostPopup() {
     document.getElementById('postOverlay').style.display = 'flex';
   }
@@ -261,14 +591,13 @@
         address: address,
         offence: desc,
         appealDeadline: deadline,
-        postedBy: auth.currentUser.email,
+        postedBy: auth.currentUser?.email || 'admin',
         postedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
       document.getElementById('postMsg').textContent = 'Sanction published successfully!';
-      document.getElementById('postMsg').style.color = 'green';
+      document.getElementById('postMsg').style.color = '#16a34a';
 
-      // Clear form
       document.getElementById('offCompany').value = '';
       document.getElementById('offAddress').value = '';
       document.getElementById('offDescription').value = '';
@@ -289,9 +618,14 @@
   }
   function escapeJs(text) { return (text+'').replace(/'/g, "\\'"); }
 
-  // Close popup when clicking outside
+  // Close popup on backdrop click
   document.getElementById('postOverlay').addEventListener('click', e => {
     if (e.target === document.getElementById('postOverlay')) closePostPopup();
+  });
+
+  // Allow Enter key in login
+  document.getElementById('pass').addEventListener('keypress', e => {
+    if (e.key === 'Enter') login();
   });
 </script>
 </body>
