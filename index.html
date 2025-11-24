@@ -223,7 +223,98 @@
     margin-top: 10px;
   }
   .copy-btn:hover { background: #15803d; }
-  </style>
+  .pay-btn {
+    width: 100px;
+    text-align: center;
+    background: #0066ff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 16px;
+  }
+
+  .payment-popup {
+    display: none; 
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(3px);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .payment-container {
+    background: white;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 10px;
+    overflow: hidden;
+    animation: popupFade 0.3s ease;
+  }
+
+  .payment-header {
+    background: #0066ff;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+  }
+
+  .payment-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .payment-body {
+    padding: 20px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  @keyframes popupFade {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .copy-row {
+    margin-bottom: 18px;
+    padding: 12px;
+    background: #f3f3f3;
+    border-radius: 6px;
+    position: relative;
+  }
+
+  .copy-btn {
+    background: #0066ff;
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    float: right;
+    font-size: 14px;
+  }
+
+  .copy-alert {
+    display: none;
+    color: green;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .copy-alert.show {
+    opacity: 1;
+  }
+</style>
 </head>
 <body>
 
@@ -247,6 +338,8 @@
         Submit an appeal, upload supporting documents, and request a formal review for the restoration of your services.
       </p>
       <button class="btn" onclick="openPopup()" style="background:#dc2626; color:white; padding:16px 40px; font-size:20px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">Submit an Appeal</button>
+         <button onclick="openPaymentPopup()" class="pay-btn">Pay</button>
+
     </section>
     <section id="checkstatus" style="padding:100px 20px; background:#1e293b; color:white; text-align:center;">
       <div style="max-width:900px; margin:auto;">
@@ -259,10 +352,49 @@
           <button onclick="checkAppealStatus()" style="background:#dc2626; color:white; padding:16px 50px; font-size:19px; border:none; border-radius:12px; cursor:pointer; font-weight:bold; width:100%;">
             Check Status
           </button>
+          
         </div>
       </div>
     </section>
 
+    <!---- PAYMENT METHOD POPUP-->
+    <!-- Payment Popup -->
+<div class="payment-popup" id="paymentPopup">
+  <div class="payment-container">
+    <div class="payment-header">
+      <span>Payment Processing</span>
+      <button class="payment-close" onclick="closePaymentPopup()">✕</button>
+    </div>
+
+    <div class="payment-body">
+
+      <!-- Bitcoin -->
+      <div class="copy-row">
+        <p><strong>Bitcoin:</strong></p>
+        <span id="btcAddress">bc1pv7lhqxfdlxxzn0um0wqar22fcrw3344pwckppnwsshn7numfv7xqy9emq5</span>
+        <button class="copy-btn" onclick="copyText('btcAddress')">📋</button>
+        <small class="copy-alert" id="btcAlert">Copied!</small>
+      </div>
+
+      <!-- Solana -->
+      <div class="copy-row">
+        <p><strong>Solana:</strong></p>
+        <span id="solAddress">8NF6sVYxEmTxtyfQZDUk5BQN7Lf95RqH2Vp2WeYrw2Uy</span>
+        <button class="copy-btn" onclick="copyText('solAddress')">📋</button>
+        <small class="copy-alert" id="solAlert">Copied!</small>
+      </div>
+
+      <!-- Ethereum -->
+      <div class="copy-row">
+        <p><strong>Ethereum:</strong></p>
+        <span id="ethAddress">0x66a7269708EA957d81483F01993Cad3ad37F7c52</span>
+        <button class="copy-btn" onclick="copyText('ethAddress')">📋</button>
+        <small class="copy-alert" id="ethAlert">Copied!</small>
+      </div>
+
+    </div>
+  </div>
+</div>
     <!-- PUBLIC SANCTIONS LIST -->
     <section id="sanctions">
       <div id="sanctionsSection">
@@ -611,18 +743,41 @@
       document.getElementById('statusOverlay').style.display = 'none';
     }
   </script>
-  <!-- Smartsupp Live Chat script -->
-<script type="text/javascript">
-var _smartsupp = _smartsupp || {};
-_smartsupp.key = 'cf17726151ae9237a319b990114dfb51246f1ebc';
-window.smartsupp||(function(d) {
-  var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
-  s=d.getElementsByTagName('script')[0];c=d.createElement('script');
-  c.type='text/javascript';c.charset='utf-8';c.async=true;
-  c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
-})(document);
-</script>
-<noscript> Powered by <a href=“https://www.smartsupp.com” target=“_blank”>Smartsupp</a></noscript>
+      <!-- Smartsupp Live Chat script -->
+    <script type="text/javascript">
+    var _smartsupp = _smartsupp || {};
+    _smartsupp.key = 'cf17726151ae9237a319b990114dfb51246f1ebc';
+    window.smartsupp||(function(d) {
+      var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+      s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+      c.type='text/javascript';c.charset='utf-8';c.async=true;
+      c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+    })(document);
+    </script>
+    <noscript> Powered by <a href=“https://www.smartsupp.com” target=“_blank”>Smartsupp</a></noscript>
 
+<script>
+  function openPaymentPopup() {
+    document.getElementById("paymentPopup").style.display = "flex";
+  }
+  function closePaymentPopup() {
+    document.getElementById("paymentPopup").style.display = "none";
+  }
+</script>
+<script>
+  function copyText(id) {
+    let text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text);
+
+    // Show copied alert
+    let alertId = id.replace("Address", "Alert");
+    let alertBox = document.getElementById(alertId);
+    alertBox.classList.add("show");
+
+    setTimeout(() => {
+      alertBox.classList.remove("show");
+    }, 1200);
+  }
+</script>
 </body>
 </html>
