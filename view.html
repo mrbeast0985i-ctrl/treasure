@@ -3,87 +3,64 @@
 <head>
   <title>View Uploaded Image</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px;
-      text-align: center;
-      background: #f5f5f5;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-      word-wrap: break-word;
+      padding: 0;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      overflow: hidden;
     }
 
     #displayImg {
-      max-width: 90%;
-      height: auto;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      display: none; /* Hidden until loaded */
     }
 
-    /* Zoom effect on hover/tap */
-    #displayImg:hover {
-      transform: scale(1.05);
+    #loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #0277bd;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      position: absolute;
     }
 
-    /* Fullscreen modal */
-    #imgModal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      padding-top: 50px;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.9);
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
-    #modalContent {
-      margin: auto;
-      display: block;
-      max-width: 95%;
-      max-height: 95%;
-    }
-
-    #imgModal span {
+    #statusMessage {
       position: absolute;
       top: 20px;
-      right: 35px;
-      color: #fff;
-      font-size: 40px;
+      text-align: center;
+      width: 100%;
+      font-size: 1.2rem;
       font-weight: bold;
-      cursor: pointer;
-    }
-
-    @media screen and (max-width: 600px) {
-      h2 { font-size: 1.2rem; }
+      color: #ff4444;
     }
   </style>
 </head>
 <body>
 
-<h2 id="title"></h2>
 <img id="displayImg" alt="Uploaded Image">
-
-<!-- Modal for fullscreen view -->
-<div id="imgModal">
-  <span id="closeModal">&times;</span>
-  <img id="modalContent" alt="Full Screen Image">
-</div>
+<div id="loader"></div>
+<div id="statusMessage"></div>
 
 <script>
-  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
     authDomain: "treasure-f5cc7.firebaseapp.com",
@@ -92,48 +69,63 @@
     messagingSenderId: "726318121382",
     appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67"
   };
-
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // Get document ID from URL
   const id = new URLSearchParams(window.location.search).get("id");
+  const imgEl = document.getElementById("displayImg");
+  const loader = document.getElementById("loader");
+  const statusEl = document.getElementById("statusMessage");
 
-  if(!id){
-    document.body.innerHTML = "<h3>❌ No document ID provided in URL</h3>";
+  if (!id) {
+    statusEl.innerText = "❌ No document ID provided in URL";
+    loader.style.display = "none";
   } else {
     db.collection("uploads").doc(id).get().then(doc => {
-      if(doc.exists){
-        const data = doc.data();
-        document.getElementById("title").innerText = data.title;
-        const imgEl = document.getElementById("displayImg");
-        imgEl.src = data.imageURL;
+      if (!doc.exists) {
+        statusEl.innerText = "❌ No record found";
+        loader.style.display = "none";
+        return;
+      }
 
-        // Fullscreen modal
-        const modal = document.getElementById("imgModal");
-        const modalImg = document.getElementById("modalContent");
-        const closeBtn = document.getElementById("closeModal");
+      const data = doc.data();
+      let canView = true;
 
-        imgEl.onclick = () => {
-          modal.style.display = "block";
-          modalImg.src = data.imageURL;
+      // Check pause
+      if (data.paused) {
+        statusEl.innerText = "⏸ This QR code is paused.";
+        canView = false;
+      }
+
+      // Check expiry
+      if (data.expiryDate) {
+        const now = new Date();
+        const expiry = data.expiryDate.toDate ? data.expiryDate.toDate() : new Date(data.expiryDate);
+        if (now > expiry) {
+          statusEl.innerText = "⏳ This QR code has expired.";
+          canView = false;
         }
+      }
 
-        closeBtn.onclick = () => {
-          modal.style.display = "none";
-        }
-
-        // Close modal when clicking outside the image
-        modal.onclick = (e) => {
-          if(e.target === modal) modal.style.display = "none";
-        }
-
+      if (canView) {
+        const img = new Image();
+        img.src = data.imageURL;
+        img.onload = () => {
+          loader.style.display = "none";
+          imgEl.src = data.imageURL;
+          imgEl.style.display = "block";
+        };
+        img.onerror = () => {
+          loader.style.display = "none";
+          statusEl.innerText = "❌ Failed to load image";
+        };
       } else {
-        document.body.innerHTML = "<h3>❌ No record found</h3>";
+        loader.style.display = "none";
       }
     }).catch(err => {
       console.error(err);
-      document.body.innerHTML = "<h3>❌ Error fetching document</h3>";
+      statusEl.innerText = "❌ Error fetching document";
+      loader.style.display = "none";
     });
   }
 </script>

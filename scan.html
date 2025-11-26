@@ -3,91 +3,148 @@
 <head>
   <title>QR Image Upload Generator</title>
 
-  <!-- Firebase v8 (compat for simple JS) -->
+  <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-  <!-- Axios for HTTP requests -->
+  <!-- Axios -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-  <!-- QR code generator -->
+  <!-- QR Generator -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
-    body { font-family: Arial; margin: 40px; }
-    input, button { padding:10px; margin-top:10px; width:250px; display:block; }
-    #qrResult img { margin-top: 20px; }
+    body { font-family: 'Segoe UI', Arial; background:#f0f2f5; display:flex; justify-content:center; padding:40px; }
+    .container { background:white; padding:30px; border-radius:12px; width:350px; box-shadow:0 8px 20px rgba(0,0,0,0.15); text-align:center; }
+    h2 { font-size:1.3rem; margin-bottom:20px; color:#333; }
+    input, select, button { padding:10px; margin:10px 0; width:100%; border-radius:6px; border:1px solid #ccc; font-size:1rem; }
+    button { background:#0277bd; color:white; border:none; cursor:pointer; transition:.3s; }
+    button:hover { background:#01579b; }
+    #qrResult { margin-top:20px; }
+    #qrResult h3 { color:green; }
+    
+    /* Loader */
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #0277bd;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+      display:none;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+
+    /* Plan info */
+    .plan-info { font-size:0.95rem; color:#555; margin-top:5px; }
   </style>
 </head>
 <body>
 
-<h2>Upload Image ➝ Generate QR Code</h2>
+<div class="container">
+  <h2>Upload Image ➝ Generate QR Code</h2>
 
-<input type="text" id="title" placeholder="Enter Image Title">
-<input type="file" id="fileInput" accept="image/*">
-<button onclick="uploadImage()">Upload & Generate QR</button>
+  <input type="text" id="title" placeholder="Enter Image Title">
+  <input type="file" id="fileInput" accept="image/*">
 
-<div id="qrResult"></div>
+  <select id="plan">
+    <option value="single">$6 — One Scan Only</option>
+    <option value="1m">$11 — 1 Month</option>
+    <option value="3m">$22 — 3 Months</option>
+    <option value="1y">$100 — 1 Year</option>
+  </select>
+
+  <button onclick="uploadImage()">Upload & Generate QR</button>
+
+  <div class="loader" id="loader"></div>
+
+  <div id="qrResult"></div>
+</div>
 
 <script>
-  // Firebase config
-  const firebaseConfig = {
+// Firebase config
+const firebaseConfig = {
     apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
     authDomain: "treasure-f5cc7.firebaseapp.com",
     projectId: "treasure-f5cc7",
     storageBucket: "treasure-f5cc7.firebasestorage.app",
     messagingSenderId: "726318121382",
     appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67"
-  };
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+function getExpiry(plan){
+    let now = new Date();
+    if(plan === "single") return null;
+    if(plan === "1m") now.setMonth(now.getMonth()+1);
+    if(plan === "3m") now.setMonth(now.getMonth()+3);
+    if(plan === "1y") now.setFullYear(now.getFullYear()+1);
+    return now;
+}
 
-  async function uploadImage() {
+async function uploadImage(){
     const file = document.getElementById('fileInput').files[0];
     const title = document.getElementById('title').value;
+    const plan = document.getElementById('plan').value;
+    const loader = document.getElementById('loader');
+    const qrResult = document.getElementById('qrResult');
 
     if(!file || !title){
-      alert("Please provide an image and title.");
-      return;
+        alert("Enter title + select image");
+        return;
     }
 
-    try {
-      // Upload to Cloudinary (unsigned preset)
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "staff_photo"); // Correct unsigned preset
+    loader.style.display = "block";
+    qrResult.innerHTML = "";
 
-      const upload = await axios.post(
-        "https://api.cloudinary.com/v1_1/dredyfvhv/image/upload",
-        formData
-      );
+    try{
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "staff_photo");
 
-      const imageURL = upload.data.secure_url;
+        const upload = await axios.post(
+            "https://api.cloudinary.com/v1_1/dredyfvhv/image/upload",
+            formData
+        );
+        const imageURL = upload.data.secure_url;
 
-      // Save to Firebase Firestore
-      const ref = await db.collection("uploads").add({ 
-        title, 
-        imageURL,
-        uploadedAt: new Date()
-      });
+        const expiryDate = getExpiry(plan);
 
-      const link = "https://www.hmt-treasuries.co.uk/view.html?id=" + ref.id;
+        const ref = await db.collection("uploads").add({
+            title,
+            imageURL,
+            plan,
+            uploadedAt: new Date(),
+            expiryDate: expiryDate,
+            paused:false,
+            scanCount:0,
+            maxScans:(plan==="single"?1:null)
+        });
 
+        const link = "https://www.hmt-treasuries.co.uk/view.html?id="+ref.id;
 
-      // Generate QR code
-      document.getElementById("qrResult").innerHTML = `
-        <p><strong>Upload Successful 🎉</strong></p>
-        <div id="qrcode"></div>
-        <p><a href="${link}" target="_blank">View Image</a></p>
-      `;
-      new QRCode(document.getElementById("qrcode"), link);
+        loader.style.display = "none";
 
-    } catch(err) {
-      console.error(err);
-      alert("Upload failed! Check console for details.");
+        qrResult.innerHTML = `
+            <h3>Upload Successful ✔</h3>
+            <div id="qrcode"></div>
+            <p class="plan-info">Plan: ${plan === "single" ? "One Scan" : plan}</p>
+            <p><a href="${link}" target="_blank">Open View Page</a></p>
+        `;
+        new QRCode(document.getElementById("qrcode"), link);
+
+    }catch(err){
+        loader.style.display = "none";
+        console.error(err);
+        alert("Upload failed!");
     }
-  }
+}
 </script>
 
 </body>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Uploaded Data</title>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+    body { font-family: Arial; text-align:center; padding:20px; background:#f2f2f2; }
+    .item{background:#fff;margin:15px auto;padding:15px;max-width:580px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.1);}
+    .item img{width:100%;max-height:350px;object-fit:cover;border-radius:8px;cursor:pointer;}
+    .btn{padding:8px 15px;margin:4px;border:none;border-radius:6px;color:white;cursor:pointer;}
+    .delete{background:#c62828;}
+    .edit{background:#0277bd;}
+    .pause{background:#ff8f00;}
+    .resume{background:#2e7d32;}
+</style>
+</head>
+<body>
+
+<h2>📄 Uploaded Files & QR Codes</h2>
+<div id="list"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
+  authDomain: "treasure-f5cc7.firebaseapp.com",
+  projectId: "treasure-f5cc7",
+  storageBucket: "treasure-f5cc7.appspot.com",
+  messagingSenderId: "726318121382",
+  appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Helper to check if expired
+function isExpired(expiry) {
+    if(!expiry) return false;
+    let now = new Date();
+    return now > expiry.toDate();
+}
+
+async function loadUploads(){
+    const list=document.getElementById("list");
+    list.innerHTML="Loading...";
+
+    const snap=await db.collection("uploads").orderBy("uploadedAt","desc").get();
+    list.innerHTML="";
+
+    snap.forEach(doc=>{
+        const data=doc.data();
+        const link = `view_single.html?id=${doc.id}`;
+        const expired = isExpired(data.expiryDate);
+        const canScan = !data.paused && !expired;
+
+        let box=document.createElement("div");
+        box.className="item";
+
+        box.innerHTML=`
+            <h3>
+                ${data.title} 
+                ${data.paused?"⛔ Paused":""} 
+                ${expired?"⏳ Expired":""}
+            </h3>
+            <img src="${data.imageURL}" 
+                 onclick="${canScan?`window.location='${link}'`:`alert('QR Disabled')`}">
+
+            <div id="qr_${doc.id}"></div><br>
+
+            <button class="btn edit" onclick="editImage('${doc.id}','${data.title}','${data.expiryDate ? data.expiryDate.toDate() : ''}')">Edit</button>
+            <button class="btn ${data.paused?'resume':'pause'}" onclick="toggleQR('${doc.id}',${data.paused})">
+                ${data.paused?'Resume Scan':'Pause Scan'}
+            </button>
+            <button class="btn delete" onclick="deleteImage('${doc.id}')">Delete</button>
+        `;
+
+        list.appendChild(box);
+        new QRCode(`qr_${doc.id}`, canScan?link:"EXPIRED");
+    });
+}
+
+loadUploads();
+
+////// 🔥 DELETE
+async function deleteImage(id){
+    if(confirm("Delete this image permanently?")){
+        await db.collection("uploads").doc(id).delete();
+        alert("Deleted!");
+        loadUploads();
+    }
+}
+
+////// 🔥 EDIT IMAGE + TITLE + EXPIRY
+async function editImage(id, oldTitle, oldExpiry){
+    let title = prompt("New title:", oldTitle);
+    if(title===null) return;
+
+    // Ask for expiry
+    let expiryInput = prompt("Set expiry (YYYY-MM-DD HH:MM), leave blank for no expiry:", oldExpiry ? oldExpiry.toISOString().slice(0,16) : "");
+    let expiryDate = expiryInput ? new Date(expiryInput) : null;
+
+    let update = { title, expiryDate };
+
+    let changeImage = confirm("Change image also?");
+    if(changeImage){
+        let input=document.createElement("input");
+        input.type="file"; input.accept="image/*";
+        input.click();
+
+        input.onchange=async()=>{
+            let file=input.files[0];
+            let fd=new FormData();
+            fd.append("file",file);
+            fd.append("upload_preset","staff_photo");
+
+            let upload = await axios.post("https://api.cloudinary.com/v1_1/dredyfvhv/image/upload",fd);
+            update.imageURL = upload.data.secure_url;
+
+            await db.collection("uploads").doc(id).update(update);
+            alert("Image, Title & Expiry Updated!");
+            loadUploads();
+        }
+    } else {
+        await db.collection("uploads").doc(id).update(update);
+        alert("Title & Expiry Updated!");
+        loadUploads();
+    }
+}
+
+////// 🔥 PAUSE / RESUME QR
+async function toggleQR(id,state){
+    await db.collection("uploads").doc(id).update({paused:!state});
+    loadUploads();
+}
+</script>
+</body>
+</html>
