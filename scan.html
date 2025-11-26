@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Image Upload Generator</title>
+
+  <!-- Firebase v8 (compat for simple JS) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+  <!-- Axios for HTTP requests -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- QR code generator -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    body { font-family: Arial; margin: 40px; }
+    input, button { padding:10px; margin-top:10px; width:250px; display:block; }
+    #qrResult img { margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<h2>Upload Image ➝ Generate QR Code</h2>
+
+<input type="text" id="title" placeholder="Enter Image Title">
+<input type="file" id="fileInput" accept="image/*">
+<button onclick="uploadImage()">Upload & Generate QR</button>
+
+<div id="qrResult"></div>
+
+<script>
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
+    authDomain: "treasure-f5cc7.firebaseapp.com",
+    projectId: "treasure-f5cc7",
+    storageBucket: "treasure-f5cc7.firebasestorage.app",
+    messagingSenderId: "726318121382",
+    appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  async function uploadImage() {
+    const file = document.getElementById('fileInput').files[0];
+    const title = document.getElementById('title').value;
+
+    if(!file || !title){
+      alert("Please provide an image and title.");
+      return;
+    }
+
+    try {
+      // Upload to Cloudinary (unsigned preset)
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "staff_photo"); // Correct unsigned preset
+
+      const upload = await axios.post(
+        "https://api.cloudinary.com/v1_1/dredyfvhv/image/upload",
+        formData
+      );
+
+      const imageURL = upload.data.secure_url;
+
+      // Save to Firebase Firestore
+      const ref = await db.collection("uploads").add({ 
+        title, 
+        imageURL,
+        uploadedAt: new Date()
+      });
+
+      const link = "view.html?id=" + ref.id;
+
+      // Generate QR code
+      document.getElementById("qrResult").innerHTML = `
+        <p><strong>Upload Successful 🎉</strong></p>
+        <div id="qrcode"></div>
+        <p><a href="${link}" target="_blank">View Image</a></p>
+      `;
+      new QRCode(document.getElementById("qrcode"), link);
+
+    } catch(err) {
+      console.error(err);
+      alert("Upload failed! Check console for details.");
+    }
+  }
+</script>
+
+</body>
+</html>
