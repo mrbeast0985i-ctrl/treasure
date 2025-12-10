@@ -1,783 +1,1157 @@
 <!DOCTYPE html>
-<html lang="en">
+<title data-fouita="translate">HM TREASURIES</title>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>HM Treasury Appeals</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body { margin:0; font-family:system-ui,sans-serif; background:#fff; color:#1e293b; line-height:1.6; }
-    a { color:#dc2626; text-decoration:none; }
-    a:hover { text-decoration:underline; }
-    /* PUBLIC SANCTIONS LIST */
-    #sanctionsSection {
-      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-      padding: 90px 20px;
-      text-align: center;
-    }
-    #sanctionsSection h1 {
-      font-size: 52px;
-      color: #991b1b;
-      font-weight: 900;
-      margin: 0 0 20px 0;
-    }
-    #sanctionsSection p {
-      font-size: 23px;
-      color: #7f1d1d;
-      max-width: 900px;
-      margin: 0 auto 60px;
-    }
-    .offence-list {
-      background: white;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 25px 60px rgba(220,38,38,0.2);
-      margin: 0 auto;
-      max-width: 1100px;
-    }
-    .offence-item {
-      padding: 32px;
-      border-bottom: 1px solid #fee;
-      cursor: pointer;
-      transition: all 0.4s ease;
-    }
-    .offence:hover {
-      background: #fff1f1;
-      transform: translateY(-6px);
-      box-shadow: 0 15px 40px rgba(220,38,38,0.15);
-    }
-    .offence:last-child { border: none; }
-    .company-name {
-      font-size: 28px;
-      font-weight: bold;
-      color: #dc2626;
-      margin-bottom: 10px;
-    }
-    .deadline {
-      font-size: 19px;
-      font-weight: bold;
-      color: #991b1b;
-    }
-    .badge {
-      background: #dc2626;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 30px;
-      font-size: 14px;
-      font-weight: bold;
-      margin-left: 12px;
-    }
-
-    /* PERFECT CENTERED POPUP */
-    .overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.92);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-    }
-    .popup {
-      background: white;
-      width: 90%;
-      max-width: 680px;
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
-      animation: pop 0.5s ease-out;
-    }
-
-    @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .popup-header {
-      background: #dc2626;
-      color: white;
-      padding: 28px;
-      font-size: 30px;
-      font-weight: bold;
-      text-align: center;
-      position: relative;}
-    .popup-close {
-      position: absolute;
-      top: 20px; right: 28px;
-      background: none;
-      border: none;
-      font-size: 40px;
-      color: white;
-      cursor: pointer;
-    }
-    .popup-body {
-      padding: 45px;
-      font-size: 18px;
-    }
-    .appeal-btn {
-      background: #dc2626;
-      color: white;
-      border: none;
-      padding: 18px;
-      font-size: 22px;
-      font-weight: bold;
-      border-radius: 14px;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 35px;
-    }
-    .appeal-btn:hover { background: #b91c1c; }
-
-    /* FORM POPUP ALSO CENTERED */
-
-    .form-popup {
-    display: none;
-    position: fixed;
-    background: rgba(0,0,0,0.8);
-    z-index: 9999;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    overflow: auto;
-  }
-  .form-container {
-    background: white;
-    width: 90%;
-    max-width: 620px;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 30px 90px rgba(0,0,0,0.4);
-    animation: pop 0.45s ease-out;
-    max-height: 95vh;        /* crucial for scrollability */
-    display: flex;
-    flex-direction: column;
-  }
-  .form-header {
-    background: #dc2626;
-    color: white;
-    padding: 20px 24px;
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HM TREASURIES</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="logo.jpg" type="image/x-icon">
+    <style>
+        /* Loader styles */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease-out;
+        }
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .spinner {
+            font-size: 3rem;
+            color: #007bff;
+        }
+        /* Button loading styles */
+        .popup-content button.loading {
+            position: relative;
+            color: transparent;
+            cursor: not-allowed;
+        }
+        .popup-content button.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Error message display */
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+            display: block;
+        }
+        /* Popup styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+        }
+        .popup-content h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .popup-content input, .popup-content select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .popup-content button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .popup-content button:hover:not(.loading) {
+            background: #0056b3;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            z-index: 1001;
+            line-height: 1;
+            width: 24px;
+            height: 24px;
+            text-align: center;
+            display: block;
+        }
+        .close-btn:hover {
+            color: #007bff;
+        }
+        .popup-content a {
+            color: #007bff;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .popup-content a:hover {
+            text-decoration: underline;
+        }   
+        .language{
+            margin-left: 20px;
+        }
+        #language-select{
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 10px;
+        }
+        .language-dropdown {
     position: relative;
-    flex-shrink: 0;
-  }
-  .form-close {
+    display: inline-block;
+}
+
+.lang-btn {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 6px;
+    gap: 8px;
+}
+
+.lang-btn img {
+    width: 22px;
+}
+
+.lang-menu {
     position: absolute;
-    top: 14px;
-    right: 20px;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 32px;
-    cursor: pointer;
-  }
-  .form-body {
-    padding: 40px;
-    overflow-y: auto;        /* this makes the form scrollable */
-    flex: 1;
-  }
-
-  /* SUCCESS OVERLAY */
-  .success-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.9);
-    z-index: 10000;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-  }
-  .success-box {
-    background: white;
-    max-width: 500px;
-    width: 90%;
-    border-radius: 20px;
-    text-align: center;
-    padding: 50px 30px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-    animation: pop 0.5s ease-out;
-  }
-  .success-box h2 {
-    color: #16a34a;
-    font-size: 32px;
-    margin-bottom: 20px;
-  }
-  .appeal-code {
-    background: #f0fdf4;
-    border: 2px dashed #16a34a;
-    color: #166534;
-    font-size: 28px;
-    font-weight: bold;
-    padding: 20px;
-    border-radius: 12px;
-    margin: 25px 0;
-    letter-spacing: 2px;
-    word-break: break-all;
-  }
-  .copy-btn {
-    background: #16a34a;
-    color: white;
-    border: none;
-    padding: 14px 32px;
-    font-size: 18px;
-    border-radius: 10px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-  .copy-btn:hover { background: #15803d; }
-  .pay-btn {
-    width: 100px;
-    text-align: center;
-    background: #0066ff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 6px;
-    font-size: 16px;
-  }
-
-  .payment-popup {
-    display: none; 
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(3px);
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
-
-  .payment-container {
-    background: white;
-    width: 90%;
-    max-width: 450px;
-    border-radius: 10px;
-    overflow: hidden;
-    animation: popupFade 0.3s ease;
-  }
-
-  .payment-header {
-    background: #0066ff;
-    color: white;
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 18px;
-  }
-
-  .payment-close {
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-  }
-
-  .payment-body {
-    padding: 20px;
-    font-size: 15px;
-    line-height: 1.5;
-  }
-
-  @keyframes popupFade {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-  .copy-row {
-    margin-bottom: 18px;
-    padding: 12px;
-    background: #f3f3f3;
-    border-radius: 6px;
-    position: relative;
-  }
-
-  .copy-btn {
-    background: #0066ff;
-    border: none;
-    color: white;
-    padding: 6px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    float: right;
-    font-size: 14px;
-  }
-
-  .copy-alert {
-    display: none;
-    color: green;
-    font-size: 12px;
+    background: #fff;
+    border: 1px solid #ccc;
     margin-top: 5px;
-    display: block;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
+    border-radius: 6px;
+    display: none;
+    width: 150px;
+    z-index: 10;
+}
 
-  .copy-alert.show {
-    opacity: 1;
-  }
-</style>
+.lang-menu .lang-option {
+    padding: 8px;
+    display: flex;
+    cursor: pointer;
+    gap: 8px;
+    align-items: center;
+}
+
+.lang-menu .lang-option img {
+    width: 20px;
+}
+
+.lang-menu .lang-option:hover {
+    background: #eee;
+}
+
+.language-dropdown.open .lang-menu {
+    display: block;
+}
+.btc-calculator{
+  box-sizing: border-box;
+  width: 320px;                 /* adjust as needed */
+  max-width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.45), inset 0 1px 0 rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #e6eef8;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+
+/* Small structural helpers that belong to the calculator block */
+.btc-calculator .row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.btc-calculator label{
+  font-size: 0.79rem;
+  opacity: 0.9;
+}
+
+.btc-calculator .value{
+  font-weight:600;
+  font-size:1.05rem;
+  text-align:right;
+}
+
+/* Inputs styled to look native but consistent */
+.btc-calculator input[type="number"],
+.btc-calculator input[type="text"],
+.btc-calculator select{
+  width:100%;
+  padding:8px 10px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.28);
+  color:inherit;
+  font-size:0.95rem;
+  outline:none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+}
+
+/* Primary action style (for a button inside the block if added) */
+.btc-calculator .btn{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+  padding:10px 14px;
+  border-radius:10px;
+  border: none;
+  cursor:pointer;
+  font-weight:600;
+  background: linear-gradient(90deg,#f7931a,#ffb84d); /* BTC-like accent */
+  color:#08101a;
+  box-shadow: 0 6px 14px rgba(247,147,26,0.18);
+}
+
+/* Compact responsive tweak */
+@media (max-width: 420px){
+  .btc-calculator{ padding:12px; width:100%;}
+  .btc-calculator .row{ flex-direction:column; align-items:stretch; }
+  .btc-calculator .value{ text-align:left; }
+}
+
+    </style>
+
 </head>
 <body>
-
-  <header>
-    <div class="nav-container" style="max-width:1200px; margin:auto; padding:20px; display:flex; justify-content:space-between; align-items:center;">
-      <div class="logo" style="font-size:28px; font-weight:bold;">HM Treasury Appeals</div>
-      <nav>
-        <a href="#sanctions" style="margin:0 15px; color:white; text-decoration:none; font-weight:600;">Sanctions List</a>
-        <a href="#mission" style="margin:0 15px; color:white; text-decoration:none; font-weight:600;">Mission</a>
-        <a href="#whyus" style="margin:0 15px; color:white; text-decoration:none; font-weight:600;">Why Choose Us</a>
-        <a href="#policies" style="margin:0 15px; color:white; text-decoration:none; font-weight:600;">Policies</a>
-      </nav>
+    <!-- Loader -->
+    <div id="loader" class="loader">
+        <i class="fa fa-spinner fa-spin spinner"></i>
     </div>
-  </header>
-  <main>
-
-    <!-- HERO -->
-    <section class="hero" style="text-align:center; padding:100px 20px; background:#f8fafc;">
-      <h1 style="font-size:48px; color:#1e293b;">HM Treasury Appeals</h1>
-      <p style="font-size:22px; max-width:900px; margin:30px auto; color:#475569;">
-        Submit an appeal, upload supporting documents, and request a formal review for the restoration of your services.
-      </p>
-      <button class="btn" onclick="openPopup()" style="background:#dc2626; color:white; padding:16px 40px; font-size:20px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">Submit an Appeal</button>
-         <button onclick="openPaymentPopup()" class="pay-btn">Pay</button>
-
-    </section>
-    <section id="checkstatus" style="padding:100px 20px; background:#1e293b; color:white; text-align:center;">
-      <div style="max-width:900px; margin:auto;">
-        <h2 style="font-size:42px; margin-bottom:20px;">Check Your Appeal Status</h2>
-        <p style="font-size:20px; margin-bottom:40px; opacity:0.9;">
-          Enter your Appeal ID (e.g. APL-XY1234) below
-        </p>
-        <div style="max-width:500px; margin:auto;">
-          <input id="statusInput" type="text" placeholder="APL-XXXXXX" style="width:100%; padding:16px; font-size:18px; border-radius:12px; border:none; margin-bottom:15px; text-transform:uppercase;" />
-          <button onclick="checkAppealStatus()" style="background:#dc2626; color:white; padding:16px 50px; font-size:19px; border:none; border-radius:12px; cursor:pointer; font-weight:bold; width:100%;">
-            Check Status
-          </button>
-          
-        </div>
-      </div>
-    </section>
-
-    <!---- PAYMENT METHOD POPUP-->
-    <!-- Payment Popup -->
-<div class="payment-popup" id="paymentPopup">
-  <div class="payment-container">
-    <div class="payment-header">
-      <span>Payment Processing</span>
-      <button class="payment-close" onclick="closePaymentPopup()">✕</button>
-    </div>
-
-    <div class="payment-body">
-
-      <!-- Bitcoin -->
-      <div class="copy-row">
-        <p><strong>Bitcoin:</strong></p>
-        <span id="btcAddress">bc1pv7lhqxfdlxxzn0um0wqar22fcrw3344pwckppnwsshn7numfv7xqy9emq5</span>
-        <button class="copy-btn" onclick="copyText('btcAddress')">📋</button>
-        <small class="copy-alert" id="btcAlert">Copied!</small>
-      </div>
-
-      <!-- Solana -->
-      <div class="copy-row">
-        <p><strong>Solana:</strong></p>
-        <span id="solAddress">8NF6sVYxEmTxtyfQZDUk5BQN7Lf95RqH2Vp2WeYrw2Uy</span>
-        <button class="copy-btn" onclick="copyText('solAddress')">📋</button>
-        <small class="copy-alert" id="solAlert">Copied!</small>
-      </div>
-
-      <!-- Ethereum -->
-      <div class="copy-row">
-        <p><strong>Ethereum:</strong></p>
-        <span id="ethAddress">0x66a7269708EA957d81483F01993Cad3ad37F7c52</span>
-        <button class="copy-btn" onclick="copyText('ethAddress')">📋</button>
-        <small class="copy-alert" id="ethAlert">Copied!</small>
-      </div>
-
-    </div>
-  </div>
-</div>
-    <!-- PUBLIC SANCTIONS LIST -->
-    <section id="sanctions">
-      <div id="sanctionsSection">
-        <h1>Public Sanctions & Offences</h1>
-        <p>Companies currently suspended for fraud, non-payment, or serious contract violation</p>
-
-        <div id="offencesContainer" class="offence-list"></div>
-
-        <div id="noOffences" style="padding:100px 20px; font-size:26px; color:#991b1b; font-weight:bold;">
-          No active sanctions at this time.
-        </div>
-      </div>
-    </section>
-
-    <!-- MISSION & VISION -->
-    <section class="section" id="mission" style="padding:80px 20px; background:white;">
-      <div style="max-width:1100px; margin:auto;">
-        <h2 style="text-align:center; font-size:38px; color:#1e293b;">Mission & Vision</h2>
-        <p style="font-size:19px; text-align:center; max-width:800px; margin:30px auto;"><strong>Mission:</strong> Provide a transparent, fast and secure appeal channel...</p>
-        <p style="font-size:19px; text-align:center; max-width:800px; margin:30px auto;"><strong>Vision:</strong> Be the industry standard...</p>
-      </div>
-    </section>
-
-    <!-- REST OF YOUR SECTIONS (Why Us, Policies, Check Status) -->
-    <!-- Keep exactly as you had them -->
-
-  </main>
-
-  <footer style="background:#1e293b; color:white; padding:60px 20px; text-align:center;">
-    <div style="max-width:1100px; margin:auto;">
-      <p style="font-size:18px;">HM Treasury — Appeals & Reactivation System • We do not support fraudulent activity.</p>
-      <p>&copy; <span id="year"></span> HM Treasury. All rights reserved.</p>
-    </div>
-  </footer>
-
-  <!-- SANCTION DETAIL POPUP -->
-  <div id="offenceOverlay" class="overlay">
-    <div class="popup">
-      <div class="popup-header">
-        Public Sanction Notice
-        <button class="popup-close" onclick="closeOffencePopup()">×</button>
-      </div>
-      <div class="popup-body">
-        <h2 id="popupCompany" style="margin:0 0 20px; color:#dc2626; font-size:28px;"></h2>
-        <p><strong>Address:</strong> <span id="popupAddress"></span></p>
-        <p><strong>Offence:</strong> <span id="popupOffence"></span></p>
-        <p><strong>Appeal Deadline:</strong> <span id="popupDeadline" class="deadline"></span></p>
-        <p style="margin-top:40px; font-size:20px; color:#7f1d1d;">
-          Submit your appeal now to request review.
-        </p>
-        <button class="appeal-btn" onclick="openAppealForCompany()">Submit Appeal for This Company</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- APPEAL FORM POPUP -->
-  <!-- APPEAL FORM POPUP (Scrollable & Centered) -->
-<!-- Appeal Form Popup (scrollable) -->
-  <div class="form-popup" id="formPopup">
-    <div class="form-container">
-      <div class="form-header">
-        Submit Your Appeal
-        <button class="form-close" onclick="closePopup()">✕</button>
-      </div>
-      <div class="form-body">
-        <form id="appealForm">
-          <p style="text-align:center; font-size:18px; color:#dc2626; margin-bottom:20px;">
-            Your Appeal ID: <strong id="appealIdDisplay" style="font-size:24px;">Loading...</strong>
-          </p>
-          <p style="text-align:center;">Save this ID — you’ll need it to check your status later.</p>
-          <input type="hidden" id="appealIdHidden" />
-          <!-- all your form fields (unchanged) -->
-          <label style="display:block; margin:20px 0 5px; font-weight:600;">Company Name *</label>
-          <input name="companyName" required style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px;" />
-          <label style="display:block; margin:20px 0 5px; font-weight:600;">Company Address *</label>
-          <input name="companyAddress" required style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px;" />
-          <label style="display:block; margin:20px 0 5px; font-weight:600;">Company Email *</label>
-          <input name="companyEmail" type="email" required style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px;" />
-          <label style="display:block; margin:20px 0 5px; font-weight:600;">Contact Person (Optional)</label>
-          <input name="contactPerson" style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px;" />
-          <label style="display:block; margin:20px 0 5px; font-weight:600;">Reason / Message *</label>
-          <textarea name="message" required rows="7" style="width:100%; padding:14px; border-radius:8px; border:1px solid #ccc; font-size:16px; resize:vertical;"></textarea>
-          <div style="margin-top:30px; text-align:center;">
-            <button type="submit" style="background:#dc2626; color:white; padding:18px 70px; font-size:20px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">
-              Submit Appeal
-            </button>
-          </div>
-        </form>
-    </div>
-  </div>
-</div>
-
-<!-- SUCCESS MESSAGE OVERLAY -->
-<div class="success-overlay" id="successOverlay">
-  <div class="success-box">
-    <h2>✓ Appeal Submitted Successfully!</h2>
-    <p>Please save your Appeal ID. You will need it to check the status of your appeal later.</p>
-    <div class="appeal-code" id="finalAppealId"></div>
-    <button class="copy-btn" onclick="copyAppealId()">Copy ID</button>
-    <br><br>
-    <button onclick="closeSuccess()" style="background:#475569; color:white; padding:12px 40px; border:none; border-radius:10px; cursor:pointer; font-size:16px;">
-      Close
-    </button>
-  </div>
-</div>
-<!-- STATUS RESULT OVERLAY - THIS WAS MISSING! -->
-<div class="success-overlay" id="statusOverlay" style="display:none;">
-  <div class="success-box" style="max-width:600px; text-align:left; padding:40px;">
-    <h2 style="text-align:center; color:#dc2626; margin-bottom:30px;">Appeal Status</h2>
-    <div id="statusResult" style="font-size:18px; line-height:1.8;"></div>
-    <div style="text-align:center; margin-top:40px;">
-      <button onclick="closeStatus()" style="background:#475569; color:white; padding:14px 40px; border:none; border-radius:10px; cursor:pointer; font-size:17px;">
-        Close
-      </button>
-    </div>
-  </div>
-</div>
-  <!-- Firebase COMPAT (critical for admin posts to show) -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
-      authDomain: "treasure-f5cc7.firebaseapp.com",
-      projectId: "treasure-f5cc7",
-      storageBucket: "treasure-f5cc7.firebasestorage.app",
-      messagingSenderId: "726318121382",
-      appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67",
-      measurementId: "G-E3MBP4PH90"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let currentCompanyForAppeal = '';
-
-    // Generate unique appeal ID
-    function generateAppealId() {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let result = 'APL-';
-      for (let i = 0; i < 6; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return result;
-    }
-
-    async function loadOffences() {
-      try {
-        const snap = await db.collection('public_offences').orderBy('postedAt', 'desc').get();
-        const container = document.getElementById('offencesContainer');
-        const noMsg = document.getElementById('noOffences');
-
-        if (snap.empty) {
-          noMsg.style.display = 'block';
-          container.innerHTML = '';
-          return;
-        }
-
-        noMsg.style.display = 'none';
-        container.innerHTML = '';
-
-        snap.forEach(doc => {
-          const d = doc.data();
-          const div = document.createElement('div');
-          div.className = 'offence-item';
-          div.onclick = () => showOffenceDetail(d);
-
-          const deadline = new Date(d.appealDeadline);
-          const daysLeft = Math.ceil((deadline - new Date()) / 86400000);
-          const urgent = daysLeft <= 10 ? 'badge' : '';
-
-          div.innerHTML = `
-            <div class="company-name">${escapeHtml(d.companyName)}</div>
-            <div style="margin:15px 0; color:#444;"><strong>Offence:</strong> ${escapeHtml(d.offence)}</div>
-            <div class="deadline">
-              Appeal Deadline: ${deadline.toLocaleDateString('en-GB', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}
-              ${daysLeft > 0 ? `<span class="${urgent}">(${daysLeft} days left)</span>` : '<span class="badge">EXPIRED</span>'}
+    <div class="container">
+        <header>
+            <div class="alert-ticker-container">
+                <p class="ticker-content">
+                    BE AWARE OF FRAUD: HM TREASURIES will **NEVER** ask you to send money to a personal account. Always deposit funds through the secure, verified platform channels. Protect your investment.
+                </p>
             </div>
-          `;
-          container.appendChild(div);
-        });
-      } catch (err) {
-        console.error(err);
-      }
-    }
+            <nav>
+                <div class="nav-left-mobile">
+                    <div class="menu-icon" id="menu-toggle">
+                        <div class="hamburger-lines"></div>
+                        <div class="hamburger-lines"></div>
+                        <div class="hamburger-lines"></div>
+                    </div>
+                </div>
+                <div class="nav-links" id="nav-links-menu">
+                    <a href="index.html">Home</a>
+                    <a href="about.html">About Us</a>
+                    <a href="contact.html">Contacts</a>
+                    <a href="investment.html">Investment</a>
+                    <a href="buy.htaaml">Buy A car</a>
+                    <a href="appeal.html" class="trade-link">Appeal</a>
+                </div>    
+               <div class="language-dropdown">
+                 <button id="current-language" class="lang-btn">
+                        <img id="current-flag" src="uk.svg" alt=""> 
+                        <span id="current-text">English</span>
+                        <i class="fa fa-caret-down"></i>
+                    </button>
 
-    function showOffenceDetail(data) {
-      currentCompanyForAppeal = data.companyName;
-      document.getElementById('popupCompany').textContent = data.companyName;
-      document.getElementById('popupAddress').textContent = data.address || 'Not specified';
-      document.getElementById('popupOffence').textContent = data.offence;
-      document.getElementById('popupDeadline').textContent = new Date(data.appealDeadline).toLocaleDateString('en-GB', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
-      document.getElementById('offenceOverlay').style.display = 'flex';
-    }
+                    <div class="lang-menu">
+                        <div class="lang-option" data-lang="index.html" data-flag="uk.svg" data-name="English">
+                            <img src="uk.svg"> English
+                        </div>
 
-    function closeOffencePopup() {
-      document.getElementById('offenceOverlay').style.display = 'none';
-    }
+                        <div class="lang-option" data-lang="index(es).html" data-flag="spanish.png" data-name="Spanish">
+                            <img src="spanish.png"> Spanish
+                        </div>
+                    </div>
+                </div>
 
-    function openAppealForCompany() {
-      closeOffencePopup();
-      const appealId = generateAppealId();
-      document.getElementById('appealIdDisplay').textContent = appealId;
-      document.getElementById('appealIdHidden').value = appealId;
-      document.querySelector('[name="companyName"]').value = currentCompanyForAppeal;
-      openPopup();
-    }
+                <div class="nav-right-buttons auth-buttons">
+                    <a href="#" class="login-btn">Login</a>
+                    <a href="#" class="register-btn">Register <i class="fa-solid fa-angle-right"></i></a>
+                </div>
+                <div class="nav-right-buttons trade-buttons" style="display: none;">
+                    <a style="background-color: rgb(4, 28, 4); color: white; padding: 12px; border-radius: 5px;" href="dashboard.html" class="trade-btn">Trade</a>
+                </div>
+            </nav>
+        </header>
+        <!-- CHAT -->
+      
+        <!-- Login Popup -->
+        <div id="login-popup" class="popup">
+            <div class="popup-content">
+                <span class="close-btn">&times;</span>
+                <h2>Login</h2>
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <p id="login-error" class="error-message"></p>
+                <button id="login-submit">Login</button>
+                <a href="#" id="forgot-password-link">Forgot Password?</a>
+                <a href="#" id="switch-to-register">Don't have an account? Register</a>
+            </div>
+        </div>
+        <!-- Register Popup -->
+        <div id="register-popup" class="popup">
+            <div class="popup-content">
+                <span class="close-btn">&times;</span>
+                <h2>Create Account</h2>
+                <input type="text" id="register-name" placeholder="Name" required>
+                <select id="register-country" required>
+                    <option value="" disabled selected>Select Country</option>
+                    <option value="AF">Afghanistan</option>
+                     <option value="AL">Albania</option>
+                    <option value="DZ">Algeria</option>
+                    <option value="AS">American Samoa</option>
+                    <option value="AD">Andorra</option>
+                    <option value="AO">Angola</option>
+                    <option value="AR">Argentina</option>
+                    <option value="AM">Armenia</option>
+                    <option value="AU">Australia</option>
+                    <option value="AT">Austria</option>
+                    <option value="AZ">Azerbaijan</option>
+                    <option value="BS">Bahamas</option>
+                    <option value="BH">Bahrain</option>
+                    <option value="BD">Bangladesh</option>
+                    <option value="BB">Barbados</option>
+                    <option value="BY">Belarus</option>
+                    <option value="BE">Belgium</option>
+                    <option value="BZ">Belize</option>
+                    <option value="BJ">Benin</option>
+                    <option value="BT">Bhutan</option>
+                    <option value="BO">Bolivia</option>
+                    <option value="BA">Bosnia and Herzegovina</option>
+                    <option value="BW">Botswana</option>
+                    <option value="BR">Brazil</option>
+                    <option value="BN">Brunei</option>
+                    <option value="BG">Bulgaria</option>
+                    <option value="BF">Burkina Faso</option>
+                    <option value="BI">Burundi</option>
+                    <option value="KH">Cambodia</option>
+                    <option value="CM">Cameroon</option>
+                    <option value="CA">Canada</option>
+                    <option value="CV">Cape Verde</option>
+                    <option value="CF">Central African Republic</option>
+                    <option value="TD">Chad</option>
+                    <option value="CL">Chile</option>
+                    <option value="CN">China</option>
+                    <option value="CO">Colombia</option>
+                    <option value="KM">Comoros</option>
+                    <option value="CD">Congo (DRC)</option>
+                    <option value="CG">Congo (Republic)</option>
+                    <option value="CR">Costa Rica</option>
+                    <option value="HR">Croatia</option>
+                    <option value="CU">Cuba</option>
+                    <option value="CY">Cyprus</option>
+                    <option value="CZ">Czech Republic</option>
+                    <option value="DK">Denmark</option>
+                    <option value="DJ">Djibouti</option>
+                    <option value="DM">Dominica</option>
+                    <option value="DO">Dominican Republic</option>
+                    <option value="EC">Ecuador</option>
+                    <option value="EG">Egypt</option>
+                    <option value="SV">El Salvador</option>
+                    <option value="GQ">Equatorial Guinea</option>
+                    <option value="ER">Eritrea</option>
+                    <option value="EE">Estonia</option>
+                    <option value="SZ">Eswatini</option>
+                    <option value="ET">Ethiopia</option>
+                    <option value="FJ">Fiji</option>
+                    <option value="FI">Finland</option>
+                    <option value="FR">France</option>
+                    <option value="GA">Gabon</option>
+                    <option value="GM">Gambia</option>
+                    <option value="GE">Georgia</option>
+                    <option value="DE">Germany</option>
+                    <option value="GH">Ghana</option>
+                    <option value="GR">Greece</option>
+                    <option value="GT">Guatemala</option>
+                    <option value="GN">Guinea</option>
+                    <option value="GW">Guinea-Bissau</option>
+                    <option value="GY">Guyana</option>
+                    <option value="HT">Haiti</option>
+                    <option value="HN">Honduras</option>
+                    <option value="HU">Hungary</option>
+                    <option value="IS">Iceland</option>
+                    <option value="IN">India</option>
+                    <option value="ID">Indonesia</option>
+                    <option value="IR">Iran</option>
+                    <option value="IQ">Iraq</option>
+                    <option value="IE">Ireland</option>
+                    <option value="IL">Israel</option>
+                    <option value="IT">Italy</option>
+                    <option value="JM">Jamaica</option>
+                    <option value="JP">Japan</option>
+                    <option value="JO">Jordan</option>
+                    <option value="KZ">Kazakhstan</option>
+                    <option value="KE">Kenya</option>
+                    <option value="KI">Kiribati</option>
+                    <option value="KW">Kuwait</option>
+                    <option value="KG">Kyrgyzstan</option>
+                    <option value="LA">Laos</option>
+                    <option value="LV">Latvia</option>
+                    <option value="LB">Lebanon</option>
+                    <option value="LS">Lesotho</option>
+                    <option value="LR">Liberia</option>
+                    <option value="LY">Libya</option>
+                    <option value="LI">Liechtenstein</option>
+                    <option value="LT">Lithuania</option>
+                    <option value="LU">Luxembourg</option>
+                    <option value="MG">Madagascar</option>
+                    <option value="MW">Malawi</option>
+                    <option value="MY">Malaysia</option>
+                    <option value="MV">Maldives</option>
+                    <option value="ML">Mali</option>
+                    <option value="MT">Malta</option>
+                    <option value="MH">Marshall Islands</option>
+                    <option value="MR">Mauritania</option>
+                    <option value="MU">Mauritius</option>
+                    <option value="MX">Mexico</option>
+                    <option value="FM">Micronesia</option>
+                    <option value="MD">Moldova</option>
+                    <option value="MC">Monaco</option>
+                    <option value="MN">Mongolia</option>
+                    <option value="ME">Montenegro</option>
+                    <option value="MA">Morocco</option>
+                    <option value="MZ">Mozambique</option>
+                    <option value="MM">Myanmar</option>
+                    <option value="NA">Namibia</option>
+                    <option value="NR">Nauru</option>
+                    <option value="NP">Nepal</option>
+                    <option value="NL">Netherlands</option>
+                    <option value="NZ">New Zealand</option>
+                    <option value="NI">Nicaragua</option>
+                    <option value="NE">Niger</option>
+                    <option value="NG">Nigeria</option>
+                    <option value="NO">Norway</option>
+                    <option value="OM">Oman</option>
+                    <option value="PK">Pakistan</option>
+                    <option value="PW">Palau</option>
+                    <option value="PA">Panama</option>
+                    <option value="PG">Papua New Guinea</option>
+                    <option value="PY">Paraguay</option>
+                    <option value="PE">Peru</option>
+                    <option value="PH">Philippines</option>
+                    <option value="PL">Poland</option>
+                    <option value="PT">Portugal</option>
+                    <option value="QA">Qatar</option>
+                    <option value="RO">Romania</option>
+                    <option value="RU">Russia</option>
+                    <option value="RW">Rwanda</option>
+                    <option value="KN">Saint Kitts and Nevis</option>
+                    <option value="LC">Saint Lucia</option>
+                    <option value="VC">Saint Vincent and the Grenadines</option>
+                    <option value="WS">Samoa</option>
+                    <option value="SM">San Marino</option>
+                    <option value="ST">Sao Tome and Principe</option>
+                    <option value="SA">Saudi Arabia</option>
+                    <option value="SN">Senegal</option>
+                    <option value="RS">Serbia</option>
+                    <option value="SC">Seychelles</option>
+                    <option value="SL">Sierra Leone</option>
+                    <option value="SG">Singapore</option>
+                    <option value="SK">Slovakia</option>
+                    <option value="SI">Slovenia</option>
+                    <option value="SB">Solomon Islands</option>
+                    <option value="SO">Somalia</option>
+                    <option value="ZA">South Africa</option>
+                    <option value="KR">South Korea</option>
+                    <option value="ES">Spain</option>
+                    <option value="LK">Sri Lanka</option>
+                    <option value="SD">Sudan</option>
+                    <option value="SR">Suriname</option>
+                    <option value="SE">Sweden</option>
+                    <option value="CH">Switzerland</option>
+                    <option value="SY">Syria</option>
+                    <option value="TW">Taiwan</option>
+                    <option value="TJ">Tajikistan</option>
+                    <option value="TZ">Tanzania</option>
+                    <option value="TH">Thailand</option>
+                    <option value="TG">Togo</option>
+                    <option value="TO">Tonga</option>
+                    <option value="TT">Trinidad and Tobago</option>
+                    <option value="TN">Tunisia</option>
+                    <option value="TR">Turkey</option>
+                    <option value="TM">Turkmenistan</option>
+                    <option value="TV">Tuvalu</option>
+                    <option value="UG">Uganda</option>
+                    <option value="UA">Ukraine</option>
+                    <option value="AE">United Arab Emirates</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="US">United States</option>
+                    <option value="UY">Uruguay</option>
+                    <option value="UZ">Uzbekistan</option>
+                    <option value="VU">Vanuatu</option>
+                    <option value="VE">Venezuela</option>
+                    <option value="VN">Vietnam</option>
+                    <option value="YE">Yemen</option>
+                    <option value="ZM">Zambia</option>
+                    <option value="ZW">Zimbabwe</option>
+                </select>
+                <input type="tel" id="register-phone" placeholder="Phone Number" required>
+                <input type="text" id="register-referral" placeholder="Referral Code (Optional)">
+                <input type="email" id="register-email" placeholder="Email" required>
+                <input type="password" id="register-password" placeholder="Password" required>
+                <input type="password" id="register-confirm-password" placeholder="Confirm Password" required>
+                <p id="register-error" class="error-message"></p>
+                <button id="register-submit">Register</button>
+                <a href="#" id="switch-to-login">Already have an account? Login</a>
+            </div>
+        </div>
+        <!-- Forgot Password Popup -->
+        <div id="forgot-password-popup" class="popup">
+            <div class="popup-content">
+                <span class="close-btn">&times;</span>
+                <h2>Forgot Password</h2>
+                <input type="email" id="forgot-email" placeholder="Email" required>
+                <p id="forgot-error" class="error-message"></p>
+                <button id="forgot-submit">Send Reset Link</button>
+                <a href="#" id="switch-to-login-from-forgot">Back to Login</a>
+            </div>
+        </div>
+        <section class="hero-section">
+            <main>
+                <div class="hero-image-container">
+                    <video src="hero-video.mp4" class="hero-image" autoplay muted loop playsinline></video>
+                </div>
+                <div class="sides-containers">
+                    <h1 class="hero-title" style="color: yellow;">Welcome to</h1>
+                    <h2 class="even-better" style="font-size: 3rem;">HM TREASURIES</h2>
+                    <p>
+                        Providing you with the opportunity to invest in more than 100 assets for continuous income
+                    </p>
+                    <div class="asset-icons">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Bitcoin_Logo.png/640px-Bitcoin_Logo.png" alt="Bitcoin">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Ethereum_Logo.png/640px-Ethereum_Logo.png" alt="Ethereum">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Binance-coin-bnb-logo.png/640px-Binance-coin-bnb-logo.png" alt="Binance Coin">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/USDC_Logo.png/640px-USDC_Logo.png" alt="USDC">
+                        <span>+100 assets</span>
+                    </div>
+                </div>
+            </main>
+        </section>
+        <div class="hero-image-section">
+            <div class="btc-calculator">
+            <h2>Bitcoin Calculator</h2>
 
-    function openPopup() {
-      if (!document.getElementById('appealIdDisplay').textContent.includes('APL-')) {
-        const appealId = generateAppealId();
-        document.getElementById('appealIdDisplay').textContent = appealId;
-        document.getElementById('appealIdHidden').value = appealId;
-      }
-      document.getElementById('formPopup').style.display = 'flex';
-    }
+            <div class="row">
+                <label>Amount in BTC:</label>
+                <input type="number" id="btcInput" placeholder="Enter BTC" step="0.000001">
+            </div>
 
-    function closePopup() {
-      document.getElementById('formPopup').style.display = 'none';
-    }
+            <div class="row">
+                <label>Select Currency:</label>
+                <select id="currencySelect">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="NGN">NGN</option>
+                </select>
+            </div>
 
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
+            <div class="row">
+                <label>Converted Value:</label>
+                <div class="value" id="result">0.00</div>
+            </div>
 
-    document.getElementById('offenceOverlay').addEventListener('click', e => {
-      if (e.target === document.getElementById('offenceOverlay')) closeOffencePopup();
-    });
+            <button class="btn" onclick="convertBTC()">Convert</button>
+        </div>
 
-    loadOffences();
-
-    // Submit Appeal
-    document.getElementById('appealForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const appealId = document.getElementById('appealIdHidden').value;
-    const companyName = document.querySelector('[name="companyName"]').value.trim();
-    const companyAddress = document.querySelector('[name="companyAddress"]').value.trim();
-    const companyEmail = document.querySelector('[name="companyEmail"]').value.trim().toLowerCase();
-    const contactPerson = document.querySelector('[name="contactPerson"]').value.trim();
-    const message = document.querySelector('[name="message"]').value.trim();
-
-    try {
-      await db.collection('appeals').doc(appealId).set({
-        appealId,
-        companyName,
-        companyAddress,
-        companyEmail,
-        contactPerson,
-        message,
-        status: 'Pending',
-        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-      // === <<< NEW CODE for POPUP ==== >>>
-      document.getElementById('appealForm').reset();
-      closePopup();
-      document.getElementById('finalAppealId').textContent = appealId;
-      document.getElementById('successOverlay').style.display = 'flex';
-    } catch (err) {
-      alert('Error: ' + err.message);
-    }
-  });
-
-  // === CLOSE SUCCESS POPUP ===
-  function closeSuccess() {
-    document.getElementById('successOverlay').style.display = 'none';
-  }
-
-  // === COPY APPEAL ID ===
-  function copyAppealId() {
-    navigator.clipboard.writeText(document.getElementById('finalAppealId').textContent);
-    const btn = document.querySelector('.copy-btn');
-    const old = btn.textContent;
-    btn.textContent = 'Copied!';
-    setTimeout(() => btn.textContent = old, 2000);
-  }
-
-  // ESC closes everything
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      closePopup(); closeSuccess(); closeStatus(); closeOffencePopup();
-    }
-  });
-
-    // Check Status (your original works perfectly)
-// === COPY APPEAL ID ===
-    function copyAppealId() {
-      navigator.clipboard.writeText(document.getElementById('finalAppealId').textContent);
-      const btn = document.querySelector('.copy-btn');
-      const old = btn.textContent;
-      btn.textContent = 'Copied!';
-      setTimeout(() => btn.textContent = old, 2000);
-    }
-
-    // === CHECK APPEAL STATUS (NEW) ===
-    async function checkAppealStatus() {
-      let input = document.getElementById('statusInput').value.trim().toUpperCase();
-      if (!input) return alert('Please enter your Appeal ID');
-
-      try {
-        const doc = await db.collection('appeals').doc(input).get();
-        const resultDiv = document.getElementById('statusResult');
-
-        if (!doc.exists) {
-          resultDiv.innerHTML = `<p style="color:#dc2626; font-size:24px;">Appeal ID not found</p><p>Please check and try again.</p>`;
-        } else {
-          const d = doc.data();
-          const date = d.submittedAt ? d.submittedAt.toDate().toLocaleDateString('en-GB', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) : 'N/A';
-          const statusClass = d.status === 'Approved' ? 'status-approved' : d.status === 'Rejected' ? 'status-rejected' : 'status-pending';
-
-          resultDiv.innerHTML = `
-            <h2 style="color:#dc2626; font-size:28px; margin-bottom:20px;">${escapeHtml(d.companyName)}</h2>
-            <p><strong>Appeal ID:</strong> ${d.appealId}</p>
-            <p><strong>Submitted on:</strong> ${date}</p>
-            <p style="margin:30px 0;"><strong>Current Status:</strong><br>
-              <span class="${statusClass}">${d.status || 'Pending'}</span>
-            </p>
-            ${d.adminNotes ? `<p><strong>Admin Notes:</strong><br>${escapeHtml(d.adminNotes)}</p>` : ''}
-          `;
+        </div>
+        <section class="how-it-works-section">
+            <h2 class="section-title">How It Works</h2>
+            <div class="cards-container">
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-wallet"></i></div>
+                    <h3>Deposit</h3>
+                    <p>Open a real account and add funds. We work with more than 20 payment systems.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3>Trade</h3>
+                    <p>Trade any of 100 assets and stocks. Use technical analysis and trade the news</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                    <h3>Withdraw</h3>
+                    <p>Get funds easily to your bank card or e-wallet. We take no commission.</p>
+                </div>
+            </div>
+            <div class="trusted-container">
+                <div class="trusted-card">
+                    <div class="trusted-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h2>Trusted</h2>
+                    <p>HM TREASURIES is a leader in the online trading industry. We are trusted by more than 70,000,000 clients.</p>
+                    <a href="#" class="see-more-btn">See more</a>
+                </div>
+                <div class="platform-award-card">
+                    <div class="award-icon"><i class="fa-solid fa-trophy"></i></div>
+                    <h3>Best Trading Platform</h3>
+                    <p>Award winner at China Trading Expo Shenzhen, 6-7 May 2017</p>
+                </div>
+            </div>
+        </section>
+        <section class="global-platform-section">
+            <h2 class="section-title-global">Global Trading Platform</h2>
+            <div class="metrics-container">
+                <div class="metric-box">
+                    <span class="metric-value">$200</span>
+                    <span class="metric-label">Minimum Deposit</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-value">$500</span>
+                    <span class="metric-label">Minimum Trading Amount</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-value">0%</span>
+                    <span class="metric-label">Commissions</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-value">0%</span>
+                    <span class="metric-label">Fees</span>
+                </div>
+            </div>
+            <p class="global-caption">People from 48 countries trade at HM TREASURIES</p>
+        </section>
+        <section class="features-section">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-chart-bar"></i></div>
+                    <h3>FLEXIBLE TRADING</h3>
+                    <p>Latest trends: quick and digital trading, express trades, pending trades, copy trading. Payouts of up to 218%.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <h3>COMPREHENSIVE EDUCATION</h3>
+                    <p>Our help section contains tutorials, guides and various trading strategies.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+                    <h3>DIVERSE TRADING INSTRUMENTS</h3>
+                    <p>Assets suitable for any trader: currency, commodities, stocks</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-laptop-code"></i></div>
+                    <h3>DEMO ACCOUNT</h3>
+                    <p>Try all platform benefits on the Demo account using virtual money. No investment needed, no risks involved.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-wallet"></i></div>
+                    <h3>EASY DEPOSITS AND WITHDRAWALS</h3>
+                    <p>Use the most convenient payment method for hassle-free deposits and withdrawals.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-certificate"></i></div>
+                    <h3>HIGH CUSTOMER LOYALTY</h3>
+                    <p>Trading tournaments, regular bonuses, gifts, promo codes and contests are available to any trader.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-shield-alt"></i></div>
+                    <h3>TRADING ADVANTAGES</h3>
+                    <p>Use cashback and other advantages for a more comfortable trading experience with minimal risks.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-sort"></i></div>
+                    <h3>INDICATORS AND SIGNALS</h3>
+                    <p>Everything you need for a top-tier trading experience including popular indicators and signals.</p>
+                </div>
+            </div>
+        </section>
+        <section class="testimonial-section">
+            <h2 class="section-title">What Our Clients Say</h2>
+            <div class="carousel-container">
+                <div class="testimonials-wrapper" id="testimonials-wrapper">
+                    <div class="testimonial-slide">
+                        <div class="quote-icon">❝</div>
+                        <p class="quote-text">"I've tried several trading platforms, but HM TREASURIES execution speed is unmatched. The withdrawal process is incredibly fast, which gives me great peace of mind. Highly recommend for serious traders."</p>
+                        <div class="client-info">
+                            <span class="client-name">Alex M.</span>
+                            <span class="client-location">London, UK</span>
+                        </div>
+                    </div>
+                    <div class="testimonial-slide">
+                        <div class="quote-icon">❝</div>
+                        <p class="quote-text">"As a beginner, the learning resources here were a game-changer. The platform is intuitive, and I love having access to so many different assets. It truly simplified my entry into investing."</p>
+                        <div class="client-info">
+                            <span class="client-name">Sofia R.</span>
+                            <span class="client-location">Toronto, Canada</span>
+                        </div>
+                    </div>
+                    <div class="testimonial-slide">
+                        <div class="quote-icon">❝</div>
+                        <p class="quote-text">"The low commission structure is fantastic for high-frequency trading. I appreciate the transparency and the live support chat, which is always responsive. A solid platform all around."</p>
+                        <div class="client-info">
+                            <span class="client-name">Chen W.</span>
+                            <span class="client-location">Singapore</span>
+                        </div>
+                    </div>
+                    <div class="testimonial-slide">
+                        <div class="quote-icon">❝</div>
+                        <p class="quote-text">"Trading 'in seconds' is absolutely accurate. I've seen major improvements in my returns since switching due to the precision and speed of their interface. Plus, the dark theme is easy on the eyes."</p>
+                        <div class="client-info">
+                            <span class="client-name">David H.</span>
+                            <span class="client-location">Sydney, Australia</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-dots" id="carousel-dots">
+                <span class="dot active" data-slide="0"></span>
+                <span class="dot" data-slide="1"></span>
+                <span class="dot" data-slide="2"></span>
+                <span class="dot" data-slide="3"></span>
+            </div>
+        </section>
+        <footer>
+            <div class="footer-content">
+                <div class="footer-col disclaimer-col">
+                    <div class="footer-logo">HM TREASURIES</div>
+                    <p class="disclaimer-text">
+                        The Company does not provide services to citizens and/or residents of Australia, Austria, Belarus, Belgium, Bulgaria, Canada, Croatia, Republic of Cyprus, Czech Republic, Denmark, Estonia, Finland, France, Germany, Greece, Hungary, Iceland, Iran, Ireland, Israel, Italy, Latvia, Liechtenstein, Lithuania, Luxembourg, Malta, Myanmar, Netherlands, New Zealand, North Korea, Norway, Poland, Portugal, Puerto Rico, Romania, Russia, Singapore, Slovakia, Slovenia, South Sudan, Spain, Sudan, Sweden, Switzerland, UK, Ukraine, the USA, Yemen.
+                    </p>
+                </div>
+                <div class="footer-col link-group">
+                    <h4>Home</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contacts</a></li>
+                        <li><a href="investment.html">Investment</a></li>
+                        <li><a href="buy.htaaml">Buy A car</a></li>
+                        <li><a href="appeal.html">Appeal</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col link-group">
+                    <h4>Investment Contacts</h4>
+                    <p>Email: investment@hm-treasuries.co.uk</p>
+                    <p>Phone: +16066020676</p>
+                    <p>Address: 123 Finance St, New York, NY</p>
+                </div>
+                <div class="footer-col link-group">
+                    <h4>Car Contacts</h4>
+                    <p>Email: car.marketer@hm-treasuries.co.uk</p>
+                    <p>Phone: +16066020676</p>
+                    <p>Address: 123 Finance St, New York, NY</p>
+                </div>
+                <div class="footer-col link-group">
+                    <h4>Tax Contacts</h4>
+                    <p>Email: hmr@hm-treasuries.co.uk</p>
+                    <p>Phone: +16066020676</p>
+                    <p>Address: 123 Finance St, New York, NY</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+                <p style="justify-content: center; text-align: center;">© 2010 HM TREASURIES. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+    <!-- Scripts -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            sendPasswordResetEmail,
+            onAuthStateChanged,
+            updateProfile
+        } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+        import {
+            getFirestore,
+            doc,
+            setDoc,
+            addDoc,
+            collection,
+            serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+         const firebaseConfig = {
+            apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
+            authDomain: "treasure-f5cc7.firebaseapp.com",
+            projectId: "treasure-f5cc7",
+            storageBucket: "treasure-f5cc7.firebasestorage.app",
+            messagingSenderId: "726318121382",
+            appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67",
+            measurementId: "G-E3MBP4PH90"
+            };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        // === Popups & Auth ===
+        const loginPopup = document.getElementById('login-popup');
+        const registerPopup = document.getElementById('register-popup');
+        const forgotPasswordPopup = document.getElementById('forgot-password-popup');
+        const loginBtn = document.querySelector('.login-btn');
+        const registerBtn = document.querySelector('.register-btn');
+        const authButtons = document.querySelector('.auth-buttons');
+        const tradeButtons = document.querySelector('.trade-buttons');
+        const closeButtons = document.querySelectorAll('.close-btn');
+        function showPopup(popup) { if (popup) popup.style.display = 'flex'; }
+        function hidePopup(popup) {
+            if (popup) {
+                popup.style.display = 'none';
+                popup.querySelectorAll('input, select').forEach(i => i.value = '');
+                const err = popup.querySelector('.error-message');
+                if (err) err.style.display = 'none';
+            }
         }
-        document.getElementById('statusOverlay').style.display = 'flex';
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
-    }
-
-    // ESC closes everything
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        closePopup(); closeSuccess(); closeStatus(); closeOffencePopup();
-      }
-    });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        closePopup();
-        closeOffencePopup();
-      }
-    });
-    function closeStatus() {
-      document.getElementById('statusOverlay').style.display = 'none';
-    }
-  </script>
-      <!-- Smartsupp Live Chat script -->
-    <script type="text/javascript">
-    var _smartsupp = _smartsupp || {};
-    _smartsupp.key = 'cf17726151ae9237a319b990114dfb51246f1ebc';
-    window.smartsupp||(function(d) {
-      var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
-      s=d.getElementsByTagName('script')[0];c=d.createElement('script');
-      c.type='text/javascript';c.charset='utf-8';c.async=true;
-      c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
-    })(document);
+        closeButtons.forEach(btn => btn.addEventListener('click', () => hidePopup(btn.closest('.popup'))));
+        loginBtn?.addEventListener('click', e => { e.preventDefault(); showPopup(loginPopup); });
+        registerBtn?.addEventListener('click', e => { e.preventDefault(); showPopup(registerPopup); });
+        document.getElementById('forgot-password-link')?.addEventListener('click', e => { e.preventDefault(); hidePopup(loginPopup); showPopup(forgotPasswordPopup); });
+        document.getElementById('switch-to-register')?.addEventListener('click', e => { e.preventDefault(); hidePopup(loginPopup); showPopup(registerPopup); });
+        document.getElementById('switch-to-login')?.addEventListener('click', e => { e.preventDefault(); hidePopup(registerPopup); showPopup(loginPopup); });
+        document.getElementById('switch-to-login-from-forgot')?.addEventListener('click', e => { e.preventDefault(); hidePopup(forgotPasswordPopup); showPopup(loginPopup); });
+        function setError(popup, message) {
+            const errEl = popup.querySelector('.error-message');
+            if (errEl) {
+                errEl.textContent = message;
+                errEl.style.display = 'block';
+            }
+        }
+        function clearError(popup) {
+            const errEl = popup.querySelector('.error-message');
+            if (errEl) {
+                errEl.style.display = 'none';
+            }
+        }
+        function setLoading(btn, loading) {
+            if (loading) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+            } else {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+        document.getElementById('login-submit')?.addEventListener('click', () => {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('login-submit');
+            if (!email || !password) {
+                setError(loginPopup, 'Please fill all fields');
+                return;
+            }
+            clearError(loginPopup);
+            setLoading(btn, true);
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    hidePopup(loginPopup);
+                })
+                .catch(err => {
+                    setError(loginPopup, err.message);
+                })
+                .finally(() => {
+                    setLoading(btn, false);
+                });
+        });
+        document.getElementById('register-submit')?.addEventListener('click', async () => {
+            const name = document.getElementById('register-name').value.trim();
+            const country = document.getElementById('register-country').value;
+            const phone = document.getElementById('register-phone').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm-password').value;
+            const btn = document.getElementById('register-submit');
+            if (!name || !country || !phone || !email || !password) {
+                setError(registerPopup, 'All fields required');
+                return;
+            }
+            if (password !== confirm) {
+                setError(registerPopup, 'Passwords do not match');
+                return;
+            }
+            clearError(registerPopup);
+            setLoading(btn, true);
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(cred.user, { displayName: name });
+                await setDoc(doc(db, 'users', auth.currentUser.uid), {
+                    name,
+                    country,
+                    phone,
+                    email,
+                    createdAt: new Date().toISOString()
+                });
+                hidePopup(registerPopup);
+            } catch (err) {
+                setError(registerPopup, err.message);
+            } finally {
+                setLoading(btn, false);
+            }
+        });
+        document.getElementById('forgot-submit')?.addEventListener('click', () => {
+            const email = document.getElementById('forgot-email').value.trim();
+            const btn = document.getElementById('forgot-submit');
+            if (!email) {
+                setError(forgotPasswordPopup, 'Enter email');
+                return;
+            }
+            clearError(forgotPasswordPopup);
+            setLoading(btn, true);
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    alert('Reset link sent!');
+                    hidePopup(forgotPasswordPopup);
+                })
+                .catch(err => {
+                    setError(forgotPasswordPopup, err.message);
+                })
+                .finally(() => {
+                    setLoading(btn, false);
+                });
+        });
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                authButtons.style.display = 'none';
+                tradeButtons.style.display = 'flex';
+            } else {
+                authButtons.style.display = 'flex';
+                tradeButtons.style.display = 'none';
+            }
+        });
+        // === Visitor Tracking (unchanged) ===
+        let hasTrackedVisit = false;
+        async function trackPageVisit() {
+            if (hasTrackedVisit) return;
+            hasTrackedVisit = true;
+            let country = 'Unknown';
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                country = data.country_name || 'Unknown';
+            } catch (e) {}
+            const visitData = {
+                userId: auth.currentUser?.uid || null,
+                userName: auth.currentUser?.displayName || null,
+                userEmail: auth.currentUser?.email || null,
+                country,
+                browser: navigator.userAgent,
+                referrer: document.referrer || 'direct',
+                url: location.href,
+                timestamp: serverTimestamp()
+            };
+            try {
+                await addDoc(collection(db, 'indexPageVisits'), visitData);
+            } catch (err) {
+                console.warn('Visit log failed:', err);
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', trackPageVisit);
+        } else {
+            trackPageVisit();
+        }
     </script>
-    <noscript> Powered by <a href=“https://www.smartsupp.com” target=“_blank”>Smartsupp</a></noscript>
+    <!-- Smartsupp Live Chat script -->
+<!-- Smartsupp Live Chat script -->
+<!-- Smartsupp Live Chat script -->
+<script type="text/javascript">
+var _smartsupp = _smartsupp || {};
+_smartsupp.key = '3b7fcbb9b10ae9e82da06340230122bc80fdfb11';
+window.smartsupp||(function(d) {
+  var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+  s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+  c.type='text/javascript';c.charset='utf-8';c.async=true;
+  c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+})(document);
+</script>
+<noscript> Powered by <a href=“https://www.smartsupp.com” target=“_blank”>Smartsupp</a></noscript>
+<noscript> Powered by <a href=“https://www.smartsupp.com” target=“_blank”>Smartsupp</a></noscript>
 
 <script>
-  function openPaymentPopup() {
-    document.getElementById("paymentPopup").style.display = "flex";
-  }
-  function closePaymentPopup() {
-    document.getElementById("paymentPopup").style.display = "none";
-  }
+    // Mobile Menu Toggle
+const menuToggle = document.getElementById('menu-toggle');
+const navLinks = document.getElementById('nav-links-menu');
+if (menuToggle && navLinks) {
+    menuToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        menuToggle.classList.toggle('open');
+    });
+    // Close menu when a link is clicked
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            menuToggle.classList.remove('open');
+        });
+    });
+}
 </script>
 <script>
-  function copyText(id) {
-    let text = document.getElementById(id).innerText;
-    navigator.clipboard.writeText(text);
-
-    // Show copied alert
-    let alertId = id.replace("Address", "Alert");
-    let alertBox = document.getElementById(alertId);
-    alertBox.classList.add("show");
-
-    setTimeout(() => {
-      alertBox.classList.remove("show");
-    }, 1200);
-  }
+// Hide loader after page fully loads
+window.addEventListener('load', () => {
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.classList.add('hidden');
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 300); // Match transition duration
+    }
+});
 </script>
+<script>
+// Testimonial Carousel
+const testimonialsWrapper = document.getElementById('testimonials-wrapper');
+const dots = document.getElementById('carousel-dots').getElementsByClassName('dot');
+let currentSlide = 0;
+function showSlide(index) {
+    const offset = -index * 100;
+    testimonialsWrapper.style.transform = `translateX(${offset}%)`;
+    for (let i = 0; i < dots.length; i++) {
+        dots[i].classList.toggle('active', i === index);
+    }
+    currentSlide = index;
+}
+for (let i = 0; i < dots.length; i++) {
+    dots[i].addEventListener('click', () => {
+        showSlide(i);
+    });
+}
+// Auto-advance slides every 10 seconds
+setInterval(() => {
+    let nextSlide = (currentSlide + 1) % dots.length;
+    showSlide(nextSlide);
+}, 10000);
+
+</script>
+
+
+</script>
+<script>
+    (function () {
+    const STORAGE_KEY = "preferredLanguage";
+    const dropdown = document.querySelector(".language-dropdown");
+    const currentFlag = document.getElementById("current-flag");
+    const currentText = document.getElementById("current-text");
+
+    // Determine current page file
+    let currentPage = location.pathname.split("/").pop();
+    if (!currentPage) currentPage = "index.html"; // treat root as index.html
+
+    // Load saved language safely
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved && saved !== currentPage) {
+        // Check if an element with this language exists
+        const savedOption = document.querySelector(`.lang-option[data-lang="${saved}"]`);
+        if (savedOption) {
+            // Only redirect if not already on root vs saved page
+            if (!(currentPage === "index.html" && saved === "index.html")) {
+                location.href = saved;
+                return;
+            }
+        }
+    }
+
+    // Set current language visually
+    document.querySelectorAll(".lang-option").forEach(option => {
+        const file = option.dataset.lang;
+        const flag = option.dataset.flag;
+        const name = option.dataset.name;
+
+        if (file === currentPage) {
+            currentFlag.src = "flags/" + flag; // Make sure flags exist
+            currentText.textContent = name;
+        }
+
+        option.addEventListener("click", () => {
+            if (file !== currentPage) {
+                localStorage.setItem(STORAGE_KEY, file);
+                location.href = file;
+            }
+        });
+    });
+
+    // Toggle dropdown
+    document.getElementById("current-language")
+        .addEventListener("click", () => dropdown.classList.toggle("open"));
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", e => {
+        if (!dropdown.contains(e.target)) dropdown.classList.remove("open");
+    });
+})();
+
+</script>
+<script>
+async function convertBTC() {
+    const btc = parseFloat(document.getElementById("btcInput").value);
+    const currency = document.getElementById("currencySelect").value;
+
+    if (isNaN(btc)) {
+        document.getElementById("result").innerText = "Enter a valid BTC amount";
+        return;
+    }
+
+    // Fetch BTC price
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${currency}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const price = data.bitcoin[currency.toLowerCase()];
+        const converted = btc * price;
+
+        document.getElementById("result").innerText =
+            converted.toLocaleString(undefined, { maximumFractionDigits: 2 }) +
+            " " + currency;
+
+    } catch (error) {
+        document.getElementById("result").innerText = "Error fetching price";
+    }
+}
+</script>
+
 </body>
 </html>

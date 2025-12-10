@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Deposit - HM TREASURIES</title>
+    <link rel="icon" href="logo.jpg" type="image/x-icon">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://apis.google.com 'unsafe-inline'; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https://*.firebaseio.com;">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: #0c1018;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            height: 95vh;
+            background: #1e293b;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+            position: relative;
+            margin: 10px 0;
+        }
+        .sidebar {
+            width: 250px;
+            background: #111827;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar nav ul {
+            list-style-type: none;
+        }
+        .sidebar nav ul li {
+            padding: 15px 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+        .sidebar nav ul li.active a,
+        .sidebar nav ul li:hover a {
+            background-color: #00ffff;
+            padding: 18px;
+            border-radius: 15px;
+            color: #000;
+            text-decoration: none;
+        }
+        .sidebar nav ul li a {
+            display: flex;
+            align-items: center;
+            color: inherit;
+            text-decoration: none;
+            width: 100%;
+        }
+        .sidebar nav ul li .icon {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+        .welcome {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+        .admin-section {
+            background: #0c1018;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.05);
+        }
+        .admin-section h2 {
+            font-size: 20px;
+            color: #00ffff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .wallet-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .wallet-form label {
+            display: block;
+            color: #00ffff;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .wallet-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #2d3748;
+            border-radius: 8px;
+            background: #111827;
+            color: #fff;
+            font-size: 16px;
+            font-family: monospace;
+        }
+        .wallet-form input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+        .wallet-form button {
+            width: 100%;
+            padding: 12px;
+            background: #00ffff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .wallet-form button:hover {
+            background: #00e5e5;
+        }
+        .wallet-form button.loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .error-message {
+            color: #ff4444;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        .success-message {
+            color: #00ff00;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        .hamburger {
+            display: none;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            color: #00ffff;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .auth-section {
+            background: #111827;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .auth-section h1 {
+            font-size: 28px;
+            color: #00ffff;
+            margin-bottom: 10px;
+        }
+        .auth-section p {
+            font-size: 16px;
+            color: #a0aec0;
+            margin-bottom: 20px;
+        }
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        .auth-btn {
+            padding: 12px 24px;
+            background: #00ffff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        .auth-btn:hover {
+            background: #00e5e5;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .popup-content {
+            background: #111827;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            position: relative;
+            border: 1px solid #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+        .popup-content h2 {
+            color: #00ffff;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .popup-content input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #2d3748;
+            border-radius: 8px;
+            background: #1e293b;
+            color: #fff;
+            font-size: 16px;
+        }
+        .popup-content input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+        .popup-content button {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            background: #00ffff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        .popup-content button:hover {
+            background: #00e5e5;
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            color: #fff;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+        .close-btn:hover {
+            background: #00ffff;
+            color: #000;
+        }
+        .popup-content a {
+            color: #00ffff;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .popup-content a:hover {
+            text-decoration: underline;
+        }
+        .error-message {
+            color: #ff4444;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                transform: translateX(-100%);
+                z-index: 999;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .hamburger {
+                display: block;
+            }
+            .main-content {
+                padding: 20px;
+            }
+            .auth-section {
+                padding: 20px;
+            }
+            .auth-section h1 {
+                font-size: 24px;
+            }
+            .auth-section p {
+                font-size: 14px;
+            }
+            .auth-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            .popup-content {
+                padding: 20px;
+                max-width: 90%;
+            }
+            .popup-content h2 {
+                font-size: 20px;
+            }
+            .popup-content input,
+            .popup-content button {
+                font-size: 14px;
+                padding: 10px;
+            }
+            .close-btn {
+                font-size: 20px;
+                width: 28px;
+                height: 28px;
+            }
+            .wallet-form input {
+                font-size: 14px;
+                padding: 10px;
+            }
+            .wallet-form button {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="hamburger" aria-label="Toggle Sidebar">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="sidebar" id="sidebar">
+            <nav>
+                <ul>
+                    <li>
+                        <a href="admin.html">
+                            <span class="icon"><i class="fa-solid fa-user-shield"></i></span>
+                            <span class="text">Admin Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="admin-deposit.html">
+                            <span class="icon"><i class="fa-regular fa-credit-card"></i></span>
+                            <span class="text">Edit Wallets</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="logout-link">
+                            <span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+                            <span class="text">Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <main class="main-content" id="main-content">
+            <div id="auth-section" class="auth-section" style="display: none;">
+                <h1>Admin Authentication</h1>
+                <p>Manage with Confidence</p>
+                <div class="auth-buttons">
+                    <button class="auth-btn" id="login-btn">Login</button>
+                    <button class="auth-btn" id="register-btn">Create Account</button>
+                </div>
+            </div>
+            <div id="admin-content" class="admin-section">
+                <h1 class="welcome" id="welcome-message">Welcome, Admin!</h1>
+                <h2>Manage Payment Details</h2>
+                <form class="wallet-form" id="wallet-form">
+                    <label for="btc-wallet">Bitcoin (BTC) Address</label>
+                    <input type="text" id="btc-wallet" name="btc" placeholder="Enter Bitcoin wallet address" required>
+                    <label for="eth-wallet">Ethereum (ETH) Address</label>
+                    <input type="text" id="eth-wallet" name="eth" placeholder="Enter Ethereum wallet address" required>
+                    <label for="usdc-wallet">USDC Address</label>
+                    <input type="text" id="usdc-wallet" name="usdc" placeholder="Enter USDC wallet address" required>
+                    <label for="usdt-wallet">USDT Address</label>
+                    <input type="text" id="usdt-wallet" name="usdt" placeholder="Enter USDT wallet address" required>
+                    <label for="bank-name">Bank Name</label>
+                    <input type="text" id="bank-name" name="bankName" placeholder="Enter Bank Name" required>
+                    <label for="account-number">Account Number</label>
+                    <input type="text" id="account-number" name="accountNumber" placeholder="Enter Account Number" required>
+                    <label for="routing-number">Routing Number</label>
+                    <input type="text" id="routing-number" name="routingNumber" placeholder="Enter Routing Number" required>
+                    <button type="submit" id="save-wallets">Save Changes</button>
+                    <p id="form-error" class="error-message"></p>
+                    <p id="form-success" class="success-message"></p>
+                </form>
+            </div>
+            <div id="login-popup" class="popup">
+                <div class="popup-content">
+                    <span class="close-btn">&times;</span>
+                    <h2>Admin Login</h2>
+                    <input type="email" id="login-email" placeholder="Email" required>
+                    <input type="password" id="login-password" placeholder="Password" required>
+                    <p id="login-error" class="error-message"></p>
+                    <button id="login-submit">Login</button>
+                    <a href="#" id="switch-to-register">Don't have an admin account? Create one</a>
+                </div>
+            </div>
+            <div id="register-popup" class="popup">
+                <div class="popup-content">
+                    <span class="close-btn">&times;</span>
+                    <h2>Create Admin Account</h2>
+                    <input type="text" id="register-name" placeholder="Name" required>
+                    <input type="email" id="register-email" placeholder="Email" required>
+                    <input type="password" id="register-password" placeholder="Password" required>
+                    <p id="register-error" class="error-message"></p>
+                    <button id="register-submit">Create Account</button>
+                    <a href="#" id="switch-to-login">Already have an admin account? Login</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+         const firebaseConfig = {
+      apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
+      authDomain: "treasure-f5cc7.firebaseapp.com",
+      projectId: "treasure-f5cc7",
+      storageBucket: "treasure-f5cc7.firebasestorage.app",
+      messagingSenderId: "726318121382",
+      appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67",
+      measurementId: "G-E3MBP4PH90"
+    };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const loginPopup = document.getElementById('login-popup');
+        const registerPopup = document.getElementById('register-popup');
+        const authSection = document.getElementById('auth-section');
+        const adminContent = document.getElementById('admin-content');
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const closeButtons = document.querySelectorAll('.close-btn');
+        const switchToRegister = document.getElementById('switch-to-register');
+        const switchToLogin = document.getElementById('switch-to-login');
+        const loginError = document.getElementById('login-error');
+        const registerError = document.getElementById('register-error');
+        const walletForm = document.getElementById('wallet-form');
+        const formError = document.getElementById('form-error');
+        const formSuccess = document.getElementById('form-success');
+        const btcWalletInput = document.getElementById('btc-wallet');
+        const ethWalletInput = document.getElementById('eth-wallet');
+        const usdcWalletInput = document.getElementById('usdc-wallet');
+        const usdtWalletInput = document.getElementById('usdt-wallet');
+        const bankNameInput = document.getElementById('bank-name');
+        const accountNumberInput = document.getElementById('account-number');
+        const routingNumberInput = document.getElementById('routing-number');
+
+        // Popup Functions
+        function showPopup(popup) {
+            if (popup) {
+                popup.style.display = 'flex';
+                const closeBtn = popup.querySelector('.close-btn');
+                if (closeBtn) closeBtn.style.display = 'flex';
+                console.log(`Showing popup: ${popup.id}`);
+            }
+        }
+
+        function hidePopup(popup) {
+            if (popup) {
+                popup.style.display = 'none';
+                popup.querySelectorAll('input').forEach(input => input.value = '');
+                const errorMessage = popup.querySelector('.error-message');
+                if (errorMessage) errorMessage.style.display = 'none';
+                console.log(`Hiding popup: ${popup.id}`);
+            }
+        }
+
+        // Close Button Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            closeButtons.forEach((btn, index) => {
+                btn.addEventListener('click', () => {
+                    const popup = btn.closest('.popup');
+                    if (popup) hidePopup(popup);
+                });
+            });
+
+            // Sidebar Hamburger Logic
+            const sidebar = document.getElementById('sidebar');
+            const hamburger = document.querySelector('.hamburger');
+            if (sidebar && hamburger) {
+                hamburger.addEventListener('click', () => {
+                    sidebar.classList.toggle('show');
+                });
+                document.addEventListener('click', (e) => {
+                    if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+                        sidebar.classList.remove('show');
+                    }
+                });
+            }
+
+            // Load Payment Details
+            loadWalletAddresses();
+        });
+
+        // Auth Button Listeners
+        if (loginBtn) loginBtn.addEventListener('click', () => showPopup(loginPopup));
+        if (registerBtn) registerBtn.addEventListener('click', () => showPopup(registerPopup));
+        if (switchToRegister) {
+            switchToRegister.addEventListener('click', () => {
+                hidePopup(loginPopup);
+                showPopup(registerPopup);
+            });
+        }
+        if (switchToLogin) {
+            switchToLogin.addEventListener('click', () => {
+                hidePopup(registerPopup);
+                showPopup(loginPopup);
+            });
+        }
+
+        // Login Handler
+        if (document.getElementById('login-submit')) {
+            document.getElementById('login-submit').addEventListener('click', () => {
+                const email = document.getElementById('login-email')?.value;
+                const password = document.getElementById('login-password')?.value;
+                if (!email || !password) {
+                    if (loginError) {
+                        loginError.textContent = 'Please enter both email and password';
+                        loginError.style.display = 'block';
+                    }
+                    return;
+                }
+                signInWithEmailAndPassword(auth, email, password)
+                    .then(() => hidePopup(loginPopup))
+                    .catch(error => {
+                        if (loginError) {
+                            loginError.textContent = 'Login failed: Invalid credentials';
+                            loginError.style.display = 'block';
+                            console.error('Login error:', error.message);
+                        }
+                    });
+            });
+        }
+
+        // Register Handler
+        if (document.getElementById('register-submit')) {
+            document.getElementById('register-submit').addEventListener('click', async () => {
+                const name = document.getElementById('register-name')?.value;
+                const email = document.getElementById('register-email')?.value;
+                const password = document.getElementById('register-password')?.value;
+
+                if (!name || !email || !password) {
+                    if (registerError) {
+                        registerError.textContent = 'Please fill in all fields';
+                        registerError.style.display = 'block';
+                    }
+                    return;
+                }
+
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    await updateProfile(user, { displayName: name });
+                    await setDoc(doc(db, 'users', user.uid), {
+                        displayName: name,
+                        email: email,
+                        totalDeposit: 0,
+                        totalProfit: 0,
+                        totalBonus: 0,
+                        balance: 0,
+                        withdrawals: 0,
+                        createdAt: new Date().toISOString()
+                    });
+                    // Ensure admin status is set, even if document exists
+                    await setDoc(doc(db, 'admins', user.uid), { isAdmin: true }, { merge: true });
+                    hidePopup(registerPopup);
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    if (registerError) {
+                        registerError.textContent = 'Registration failed: ' + error.message;
+                        registerError.style.display = 'block';
+                    }
+                }
+            });
+        }
+
+        // Authentication State Handler
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const adminRef = doc(db, 'admins', user.uid);
+                try {
+                    const adminSnap = await getDoc(adminRef);
+                    console.log('Admin check:', { uid: user.uid, exists: adminSnap.exists(), data: adminSnap.data() });
+                    if (authSection) authSection.style.display = 'none';
+                    if (adminContent) adminContent.style.display = 'block';
+                    if (document.getElementById('sidebar')) document.getElementById('sidebar').style.display = 'block';
+                    if (document.querySelector('.hamburger')) document.querySelector('.hamburger').style.display = 'block';
+                    if (document.getElementById('welcome-message')) {
+                        document.getElementById('welcome-message').textContent = `Welcome, ${user.displayName || 'Admin'}!`;
+                    }
+                } catch (error) {
+                    console.error('Error checking admin status:', error);
+                    alert('Error loading admin dashboard. Please try again.');
+                    await signOut(auth);
+                    window.location.href = 'index.html';
+                }
+            } else {
+                if (authSection) authSection.style.display = 'block';
+                if (adminContent) adminContent.style.display = 'none';
+                if (document.getElementById('sidebar')) document.getElementById('sidebar').style.display = 'none';
+                if (document.querySelector('.hamburger')) document.querySelector('.hamburger').style.display = 'none';
+                showPopup(loginPopup);
+            }
+        });
+
+        // Load Payment Details
+        async function loadWalletAddresses() {
+            const walletRef = doc(db, 'wallets', 'walletAddresses');
+            try {
+                const walletSnap = await getDoc(walletRef);
+                const defaultDetails = {
+                    btc: 'Enter Bitcoin wallet address',
+                    eth: 'Enter Ethereum wallet address',
+                    usdc: 'Enter USDC wallet address',
+                    usdt: 'Enter USDT wallet address',
+                    bankName: 'Enter Bank Name',
+                    accountNumber: 'Enter Account Number',
+                    routingNumber: 'Enter Routing Number'
+                };
+                if (!walletSnap.exists()) {
+                    await setDoc(walletRef, defaultDetails);
+                    btcWalletInput.value = defaultDetails.btc;
+                    ethWalletInput.value = defaultDetails.eth;
+                    usdcWalletInput.value = defaultDetails.usdc;
+                    usdtWalletInput.value = defaultDetails.usdt;
+                    bankNameInput.value = defaultDetails.bankName;
+                    accountNumberInput.value = defaultDetails.accountNumber;
+                    routingNumberInput.value = defaultDetails.routingNumber;
+                } else {
+                    const data = walletSnap.data();
+                    btcWalletInput.value = data.btc || defaultDetails.btc;
+                    ethWalletInput.value = data.eth || defaultDetails.eth;
+                    usdcWalletInput.value = data.usdc || defaultDetails.usdc;
+                    usdtWalletInput.value = data.usdt || defaultDetails.usdt;
+                    bankNameInput.value = data.bankName || defaultDetails.bankName;
+                    accountNumberInput.value = data.accountNumber || defaultDetails.accountNumber;
+                    routingNumberInput.value = data.routingNumber || defaultDetails.routingNumber;
+                }
+            } catch (error) {
+                console.error('Error loading payment details:', error);
+                if (formError) {
+                    formError.textContent = 'Failed to load payment details: ' + error.message;
+                    formError.style.display = 'block';
+                }
+            }
+        }
+
+        // Save Payment Details
+        if (walletForm) {
+            walletForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btc = btcWalletInput.value.trim();
+                const eth = ethWalletInput.value.trim();
+                const usdc = usdcWalletInput.value.trim();
+                const usdt = usdtWalletInput.value.trim();
+                const bankName = bankNameInput.value.trim();
+                const accountNumber = accountNumberInput.value.trim();
+                const routingNumber = routingNumberInput.value.trim();
+
+                if (!btc || !eth || !usdc || !usdt || !bankName || !accountNumber || !routingNumber) {
+                    if (formError) {
+                        formError.textContent = 'Please fill in all payment details';
+                        formError.style.display = 'block';
+                        formSuccess.style.display = 'none';
+                    }
+                    return;
+                }
+
+                const saveButton = document.getElementById('save-wallets');
+                saveButton.classList.add('loading');
+                try {
+                    const walletRef = doc(db, 'wallets', 'walletAddresses');
+                    await updateDoc(walletRef, { btc, eth, usdc, usdt, bankName, accountNumber, routingNumber });
+                    formSuccess.textContent = 'Payment details updated successfully!';
+                    formSuccess.style.display = 'block';
+                    formError.style.display = 'none';
+                } catch (error) {
+                    console.error('Error saving payment details:', error);
+                    formError.textContent = 'Failed to save payment details: ' + error.message;
+                    formError.style.display = 'block';
+                    formSuccess.style.display = 'none';
+                } finally {
+                    saveButton.classList.remove('loading');
+                    setTimeout(() => {
+                        formSuccess.style.display = 'none';
+                        formError.style.display = 'none';
+                    }, 3000);
+                }
+            });
+        }
+
+        // Logout Handler
+        const logoutLink = document.getElementById('logout-link');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await signOut(auth);
+                    if (authSection) authSection.style.display = 'block';
+                    if (adminContent) adminContent.style.display = 'none';
+                    if (document.getElementById('sidebar')) document.getElementById('sidebar').style.display = 'none';
+                    if (document.querySelector('.hamburger')) document.querySelector('.hamburger').style.display = 'none';
+                    showPopup(loginPopup);
+                } catch (error) {
+                    console.error('Logout failed:', error);
+                    alert('Unable to log out. Please try again.');
+                }
+            });
+        }
+    </script>
+    <div data-key="Translator Dropdown" class="ft" id="ftgug97c7g"></div>
+<script src="https://wdg.fouita.com/widgets/0x36a32f.js"></script>
+
+<!-- Persistent Language Script -->
+<script src="language.js"></script>
+</body>
+</html>

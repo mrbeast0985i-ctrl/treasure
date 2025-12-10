@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="icon" href="logo.jpg" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+    <style>
+        body { background:#0c1018; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; }
+        .box { background:#111827; padding:40px; border-radius:12px; width:380px; border:1px solid #00ffff; }
+        input, button { width:100%; padding:12px; margin:8px 0; border-radius:8px; }
+        input { background:#1e293b; border:1px solid #2d3748; color:#fff; }
+        button { background:#00ffff; color:#000; border:none; font-weight:bold; cursor:pointer; }
+        .error { color:#ff4444; text-align:center; margin-top:10px; }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h2 style="text-align:center;color:#00ffff;">Admin Login</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <p id="error" class="error" style="display:none;"></p>
+    <button id="login">Login</button>
+</div>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+     const firebaseConfig = {
+      apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
+      authDomain: "treasure-f5cc7.firebaseapp.com",
+      projectId: "treasure-f5cc7",
+      storageBucket: "treasure-f5cc7.firebasestorage.app",
+      messagingSenderId: "726318121382",
+      appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67",
+      measurementId: "G-E3MBP4PH90"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById('login').onclick = async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const error = document.getElementById('error');
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            location.href = 'admin.html';
+        } catch (e) {
+            error.textContent = e.message;
+            error.style.display = 'block';
+        }
+    };
+</script>
+<div data-key="Translator Dropdown" class="ft" id="ftgug97c7g"></div>
+<script src="https://wdg.fouita.com/widgets/0x36a32f.js"></script>
+
+<!-- Persistent Language Script -->
+<script src="language.js"></script>
+</body>
+</html>

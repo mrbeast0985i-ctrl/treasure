@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title">HM TREASURIES - Investment</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="investment.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="logo.jpg" type="image/x-icon">
+    <script src="https://unpkg.com/i18next@21.6.14/dist/umd/i18next.min.js"></script>
+</head>
+<body>
+    <div class="container">
+         <header>
+            <div class="alert-ticker-container">
+                <p class="ticker-content" data-i18n="alert">
+                    ⚠️ BE AWARE OF FRAUD: Equityhubs will **NEVER** ask you to send money to a personal account. Always deposit funds through the secure, verified platform channels. Protect your investment.
+                </p>
+            </div>
+            <nav>
+                <div class="nav-left-mobile">
+                    <div class="menu-icon" id="menu-toggle">
+                        <div class="hamburger-lines"></div>
+                        <div class="hamburger-lines"></div>
+                        <div class="hamburger-lines"></div>
+                    </div>
+                
+                </div>
+                <div class="nav-links" id="nav-links-menu">
+                    <a href="index.html">Home</a>
+                    <a href="about.html">About Us</a>
+                    <a href="contact.html">Contacts</a>
+                    <a href="investment.html">Investment</a>
+                    <a href="buy.htaaml">Buy A car</a>
+                    <a href="appeal.html" class="trade-link">Appeal</a>
+                </div>    
+                
+                <div class="nav-right-buttons auth-buttons">
+                    <a href="#" class="login-btn" data-i18n="login"></a>
+                    <a href="#" class="register-btn" data-i18n="register"> <i class="fa-solid fa-angle-right"></i></a>
+                </div>
+                <div class="nav-right-buttons trade-buttons" style="display: none;">
+                    <a style="background-color: rgb(4, 28, 4); text-align: white; padding: 12px; border-radius: 5px;" href="dashboard.html" class="trade-btn" data-i18n="trade">Trade</a>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Login Popup -->
+        <div id="login-popup" class="popup">
+            <div class="popup-content">
+                <span class="close-btn">&times;</span>
+                <h2 data-i18n="login_title">Login</h2>
+                <input type="email" id="login-email" data-i18n-placeholder="email_placeholder" placeholder="Email" required>
+                <input type="password" id="login-password" data-i18n-placeholder="password_placeholder" placeholder="Password" required>
+                <p id="login-error" class="error-message"></p>
+                <button id="login-submit" data-i18n="login_button">Login</button>
+                <a href="#" id="forgot-password-link" data-i18n="forgot_password">Forgot Password?</a>
+                <a href="#" id="switch-to-register" data-i18n="switch_to_register">Don't have an account? Register</a>
+            </div>
+        </div>
+
+        <!-- Register Popup -->
+        <div id="register-popup" class="popup">
+            <div class="popup-content">
+                <span class="close-btn">&times;</span>
+                <h2 data-i18n="create_account">Create Account</h2>
+                <input type="text" id="register-name" data-i18n-placeholder="name_placeholder" placeholder="Name" required>
+                <input type="email" id="register-email" data-i18n-placeholder="email_placeholder" placeholder="Email" required>
+                <input type="password" id="register-password" data-i18n-placeholder="password_placeholder" placeholder="Password" required>
+                <input type="password" id="register-confirm-password" data-i18n-placeholder="confirm_password_placeholder" placeholder="Confirm Password" required>
+                <p id="register-error" class="error-message"></p>
+                <button id="register-submit" data-i18n="register_button">Register</button>
+                <a href="#" id="switch-to-login" data-i18n="switch_to_login">Already have an account? Login</a>
+            </div>
+        </div>
+
+        <!-- Forgot Password Popup -->
+        <div id="forgot-password-popup" class="popup">
+            <div class="popup-content">
+                <span class="close-btn">&times;</span>
+                <h2 data-i18n="forgot_password_title">Forgot Password</h2>
+                <input type="email" id="forgot-email" data-i18n-placeholder="email_placeholder" placeholder="Email" required>
+                <p id="forgot-error" class="error-message"></p>
+                <button id="forgot-submit" data-i18n="send_reset_link">Send Reset Link</button>
+                <a href="#" id="switch-to-login-from-forgot" data-i18n="back_to_login">Back to Login</a>
+            </div>
+        </div>
+
+        <main>
+            <section class="investment-section">
+                <h1 data-i18n="investment_opportunities">Investment Opportunities</h1>
+                <p data-i18n="investment_description">Explore our range of investment plans designed to help you grow your wealth. Choose a plan that suits your financial goals and start investing today!</p>
+                <div class="investment-plans">
+                    <div class="investment-plan">
+                        <h2 data-i18n="basic_plan">Basic Plan</h2>
+                        <p data-i18n="basic_min_investment">Minimum Investment: $100</p>
+                        <p data-i18n="basic_return">Return: 5% Monthly</p>
+                        <p data-i18n="basic_duration">Duration: 6 Months</p>
+                        <a class="invest-btn" href="deposit.html" data-plan="Basic" data-i18n="invest_now">Invest Now</a>
+                    </div>
+                    <div class="investment-plan">
+                        <h2 data-i18n="standard_plan">Standard Plan</h2>
+                        <p data-i18n="standard_min_investment">Minimum Investment: $500</p>
+                        <p data-i18n="standard_return">Return: 7% Monthly</p>
+                        <p data-i18n="standard_duration">Duration: 12 Months</p>
+                        <a class="invest-btn" href="deposit.html" data-plan="Standard" data-i18n="invest_now">Invest Now</a>
+                    </div>
+                    <div class="investment-plan">
+                        <h2 data-i18n="premium_plan">Premium Plan</h2>
+                        <p data-i18n="premium_min_investment">Minimum Investment: $1000</p>
+                        <p data-i18n="premium_return">Return: 10% Monthly</p>
+                        <p data-i18n="premium_duration">Duration: 24 Months</p>
+                        <a class="invest-btn" href="deposit.html" data-plan="VIP" data-i18n="invest_now">Invest Now</a>
+
+                    </div>
+                    <div class="investment-plan">
+                        <h2 data-i18n="premium_plan">VIP Plan</h2>
+                        <p data-i18n="premium_min_investment">Minimum Investment: $5000</p>
+                        <p data-i18n="premium_return">Return: 15% Monthly</p>
+                        <p data-i18n="premium_duration">Duration: 36 Months</p>
+                        <a class="invest-btn" href="deposit.html" data-plan="VIP" data-i18n="invest_now">Invest Now</a>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+
+  <footer>
+            <div class="footer-content">
+                <div class="footer-col disclaimer-col">
+                    <div class="footer-logo">HM TREASURIES</div>
+                    <p class="disclaimer-text">
+                        The Company does not provide services to citizens and/or residents of Australia, Austria, Belarus, Belgium, Bulgaria, Canada, Croatia, Republic of Cyprus, Czech Republic, Denmark, Estonia, Finland, France, Germany, Greece, Hungary, Iceland, Iran, Ireland, Israel, Italy, Latvia, Liechtenstein, Lithuania, Luxembourg, Malta, Myanmar, Netherlands, New Zealand, North Korea, Norway, Poland, Portugal, Puerto Rico, Romania, Russia, Singapore, Slovakia, Slovenia, South Sudan, Spain, Sudan, Sweden, Switzerland, UK, Ukraine, the USA, Yemen.
+                    </p>
+                </div>
+                <div class="footer-col link-group">
+                    <h4>Home</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contacts</a></li>
+                        <li><a href="investment.html">Investment</a></li>
+                        <li><a href="buy.htaaml">Buy A car</a></li>
+                        <li><a href="appeal.html">Appeal</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col link-group">
+                    <h4>Investment Contacts</h4>
+                    <p>Email: investment@hm-treasuries.co.uk</p>
+                    <p>Phone: +16066020676</p>
+                    <p>Address: 123 Finance St, New York, NY</p>
+                </div>
+                <div class="footer-col link-group">
+                    <h4>Car Contacts</h4>
+                    <p>Email: car.marketer@hm-treasuries.co.uk</p>
+                    <p>Phone: +16066020676</p>
+                    <p>Address: 123 Finance St, New York, NY</p>
+                </div>
+                <div class="footer-col link-group">
+                    <h4>Tax Contacts</h4>
+                    <p>Email: hmr@hm-treasuries.co.uk</p>
+                    <p>Phone: +16066020676</p>
+                    <p>Address: 123 Finance St, New York, NY</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+                <p style="justify-content: center; text-align: center;">© 2010 HM TREASURIES. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+       const firebaseConfig = {
+        apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
+        authDomain: "treasure-f5cc7.firebaseapp.com",
+        projectId: "treasure-f5cc7",
+        storageBucket: "treasure-f5cc7.firebasestorage.app",
+        messagingSenderId: "726318121382",
+        appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67",
+        measurementId: "G-E3MBP4PH90"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const loginPopup = document.getElementById('login-popup');
+        const registerPopup = document.getElementById('register-popup');
+        const forgotPasswordPopup = document.getElementById('forgot-password-popup');
+        const loginBtn = document.querySelector('.login-btn');
+        const registerBtn = document.querySelector('.register-btn');
+        const authButtons = document.querySelector('.auth-buttons');
+        const tradeButtons = document.querySelector('.trade-buttons');
+        const closeButtons = document.querySelectorAll('.close-btn');
+        const switchToRegister = document.getElementById('switch-to-register');
+        const switchToLogin = document.getElementById('switch-to-login');
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        const switchToLoginFromForgot = document.getElementById('switch-to-login-from-forgot');
+        const loginError = document.getElementById('login-error');
+        const registerError = document.getElementById('register-error');
+        const forgotError = document.getElementById('forgot-error');
+        const languageSwitcher = document.getElementById('languageSwitcher');
+
+    
+
+        i18next.init({
+            lng: 'en',
+            resources: {
+                en: { translation: translations.en },
+                fr: { translation: translations.fr },
+                es: { translation: translations.es }
+            }
+        }, function(err, t) {
+            updateContent();
+        });
+
+        async function translateText(text, targetLang) {
+            try {
+                const response = await fetch('https://libretranslate.de/translate', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        q: text,
+                        source: 'auto',
+                        target: targetLang,
+                        format: 'text'
+                    }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                return data.translatedText || text;
+            } catch (error) {
+                console.error('Translation failed:', error);
+                return text;
+            }
+        }
+
+        async function updateContent() {
+            document.querySelectorAll('[data-i18n]').forEach(async el => {
+                const key = el.getAttribute('data-i18n');
+                let text = i18next.t(key);
+                if (text === key) {
+                    text = await translateText(key, currentLang);
+                }
+                el.textContent = text;
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(async el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                let text = i18next.t(key);
+                if (text === key) {
+                    text = await translateText(key, currentLang);
+                }
+                el.placeholder = text;
+            });
+            document.title = i18next.t('title');
+
+            const errorElements = [loginError, registerError, forgotError];
+            errorElements.forEach(async el => {
+                if (el.textContent && el.style.display !== 'none') {
+                    el.textContent = await translateText(el.textContent, currentLang);
+                }
+            });
+        }
+
+        languageSwitcher.addEventListener('change', async (e) => {
+            currentLang = e.target.value;
+            i18next.changeLanguage(currentLang, updateContent);
+        });
+
+        function showPopup(popup) {
+            popup.style.display = 'flex';
+        }
+
+        function hidePopup(popup) {
+            popup.style.display = 'none';
+            popup.querySelectorAll('input').forEach(input => input.value = '');
+            popup.querySelector('.error-message').style.display = 'none';
+        }
+
+        loginBtn.addEventListener('click', () => showPopup(loginPopup));
+        registerBtn.addEventListener('click', () => showPopup(registerPopup));
+        forgotPasswordLink.addEventListener('click', () => {
+            hidePopup(loginPopup);
+            showPopup(forgotPasswordPopup);
+        });
+        switchToRegister.addEventListener('click', () => {
+            hidePopup(loginPopup);
+            showPopup(registerPopup);
+        });
+        switchToLogin.addEventListener('click', () => {
+            hidePopup(registerPopup);
+            showPopup(loginPopup);
+        });
+        switchToLoginFromForgot.addEventListener('click', () => {
+            hidePopup(forgotPasswordPopup);
+            showPopup(loginPopup);
+        });
+
+        closeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                hidePopup(btn.closest('.popup'));
+            });
+        });
+
+        document.getElementById('login-submit').addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                hidePopup(loginPopup);
+                window.location.href = 'deposit.html';
+            } catch (error) {
+                loginError.textContent = await translateText(error.message, currentLang);
+                loginError.style.display = 'block';
+            }
+        });
+
+        document.getElementById('register-submit').addEventListener('click', async () => {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+
+            if (!name) {
+                registerError.textContent = await translateText('Name is required', currentLang);
+                registerError.style.display = 'block';
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                registerError.textContent = await translateText('Passwords do not match', currentLang);
+                registerError.style.display = 'block';
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, { displayName: name });
+                hidePopup(registerPopup);
+                window.location.href = 'deposit.html';
+            } catch (error) {
+                registerError.textContent = await translateText(error.message, currentLang);
+                registerError.style.display = 'block';
+            }
+        });
+
+        document.getElementById('forgot-submit').addEventListener('click', async () => {
+            const email = document.getElementById('forgot-email').value;
+            try {
+                await sendPasswordResetEmail(auth, email);
+                forgotError.textContent = await translateText('Password reset email sent!', currentLang);
+                forgotError.style.color = 'green';
+                forgotError.style.display = 'block';
+            } catch (error) {
+                forgotError.textContent = await translateText(error.message, currentLang);
+                forgotError.style.color = 'red';
+                forgotError.style.display = 'block';
+            }
+        });
+
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                authButtons.style.display = 'none';
+                tradeButtons.style.display = 'block';
+            } else {
+                authButtons.style.display = 'block';
+                tradeButtons.style.display = 'none';
+            }
+
+            document.querySelectorAll('.invest-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (user) {
+                        window.location.href = 'deposit.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                });
+            });
+        });
+
+        const menuToggle = document.getElementById('menu-toggle');
+        const navLinks = document.getElementById('nav-links-menu');
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!menuToggle.contains(e.target) && !navLinks.contains(e.target)) {
+                navLinks.classList.remove('active');
+            }
+        });
+    </script>
+    <!-- Smartsupp Live Chat script -->
+<!-- Smartsupp Live Chat script -->
+<!-- Smartsupp Live Chat script -->
+<script type="text/javascript">
+var _smartsupp = _smartsupp || {};
+_smartsupp.key = '3b7fcbb9b10ae9e82da06340230122bc80fdfb11';
+window.smartsupp||(function(d) {
+  var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+  s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+  c.type='text/javascript';c.charset='utf-8';c.async=true;
+  c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+})(document);
+</script>
+<noscript> Powered by <a href=“https://www.smartsupp.com” target=“_blank”>Smartsupp</a></noscript>
+<noscript> Powered by <a href=“https://www.smartsupp.com” target=“_blank”>Smartsupp</a></noscript>
+</body>
+</html>

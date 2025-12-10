@@ -1,298 +1,243 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>HM Treasury - Admin Panel</title>
-  <style>
-    body { font-family: system-ui, sans-serif; background:#f1f5f9; color:#1e293b; margin:0; }
-    .container { max-width:1200px; margin:0 auto; padding:20px; }
-    header { background:#1e293b; color:white; padding:16px 0; }
-    .logo { font-size:26px; font-weight:bold; margin-left:20px; }
-    .login { background:white; padding:30px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.1); max-width:400px; margin:40px auto; }
-    .input, .btn { width:100%; padding:14px; margin:10px 0; border-radius:10px; border:1px solid #cbd5e1; font-size:16px; }
-    .btn { background:#3b82f6; color:white; cursor:pointer; font-weight:600; border:none; }
-    .btn:hover { background:#2563eb; }
-    .btn-success { background:#16a34a; }
-    .btn-danger { background:#dc2626; }
-    .btn-warning { background:#ea580c; }
-    table { width:100%; border-collapse:collapse; background:white; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.1); margin-top:20px; }
-    th { background:#1e293b; color:white; padding:18px; text-align:left; font-weight:600; }
-    td { padding:16px; border-bottom:1px solid #e2e8f0; vertical-align:top; }
-    tr:hover { background:#f8fafc; }
-    .status-badge { padding:6px 12px; border-radius:50px; color:white; font-size:13px; font-weight:bold; }
-    .pending { background:#ea580c; }
-    .review { background:#0ea5e9; }
-    .approved { background:#16a34a; }
-    .rejected { background:#dc2626; }
-    .load-btn, .post-btn { background:#dc2626; padding:18px 40px; font-size:18px; margin:20px 10px 20px 0; display:inline-block; }
-
-    /* POPUP FOR POSTING SANCTION */
-    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; padding:20px; }
-    .popup-box { background:white; max-width:600px; width:100%; border-radius:20px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.5); animation:pop 0.4s ease-out; }
-    @keyframes pop { from { transform:scale(0.8); opacity:0; } to { transform:scale(1); opacity:1; } }
-    .popup-header { background:#dc2626; color:white; padding:20px; text-align:center; font-size:22px; font-weight:bold; position:relative; }
-    .close-popup { position:absolute; top:10px; right:16px; background:none; border:none; color:white; font-size:32px; cursor:pointer; }
-    .popup-body { padding:40px; }
-    .popup-body label { display:block; margin:16px 0 6px; font-weight:600; }
-    .popup-body input, .popup-body textarea { width:100%; padding:14px; border-radius:10px; border:1px solid #cbd5e1; font-size:16px; }
-    #postMsg { margin-top:16px; font-weight:600; text-align:center; }
-  </style>
+    <meta charset="UTF-8">
+    <title data-i18n="admin_title">Admin Dashboard - Equity Hubs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+    <script src="https://unpkg.com/i18next@21.6.14/dist/umd/i18next.min.js"></script>
+    <link rel="icon" href="logo.jpg" type="image/x-icon">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+        body{background:#0c1018;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow-x:hidden;}
+        .container{display:flex;width:100%;max-width:1200px;height:95vh;background:#1e293b;border-radius:12px;box-shadow:0 0 20px rgba(0,255,255,.1);margin:10px 0;position:relative;}
+        .sidebar{width:250px;background:#111827;padding:20px;display:flex;flex-direction:column;transition:transform .3s;}
+        .sidebar nav ul{list-style:none;}
+        .sidebar nav ul li{padding:15px 10px;border-radius:8px;margin-bottom:10px;cursor:pointer;transition:background .3s;}
+        .sidebar nav ul li.active a,.sidebar nav ul li:hover a{background:#00ffff;padding:18px;border-radius:15px;color:#000;text-decoration:none;}
+        .sidebar nav ul li a{display:flex;align-items:center;color:inherit;text-decoration:none;width:100%;}
+        .sidebar nav ul li .icon{margin-right:10px;font-size:18px;}
+        .main-content{flex-grow:1;padding:30px 40px;overflow-y:auto;}
+        .hamburger{display:none;position:absolute;top:20px;left:20px;background:none;border:none;color:#00ffff;font-size:24px;cursor:pointer;z-index:1000;}
+        .section{background:#0c1018;padding:20px;border-radius:12px;margin-bottom:30px;box-shadow:inset 0 0 20px rgba(0,255,255,.05);}
+        .section h2{color:#00ffff;margin-bottom:15px;}
+        table{width:100%;border-collapse:collapse;background:#111827;border-radius:8px;overflow:hidden;}
+        th,td{padding:12px;text-align:left;border-bottom:1px solid #2d3748;}
+        th{background:#1e293b;color:#00ffff;font-weight:600;}
+        .language-selector select{padding:8px;border-radius:4px;background:#1e293b;color:#fff;border:1px solid #2d3748;}
+        input[type=number]{background:transparent;border:none;color:#fff;width:100%;text-align:left;font-size:inherit;}
+        input[type=number]:focus{outline:2px solid #00ffff;}
+        .balance-cell{font-weight:600;color:#00ff88;}
+        @media (max-width:768px){
+            .container{flex-direction:column;height:auto;}
+            .sidebar{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%);z-index:999;}
+            .sidebar.show{transform:translateX(0);}
+            .hamburger{display:block;}
+            .main-content{padding:20px;}
+        }
+    </style>
 </head>
 <body>
 
-<header>
-  <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
-    <div class="logo">HM Treasury Admin</div>
-    <a href="index.html" style="color:white; text-decoration:none; font-weight:500;">← Back to Public Site</a>
-  </div>
-</header>
+<div class="container" id="container" style="display:none;">
+    <button class="hamburger" aria-label="Toggle Sidebar"><i class="fa-solid fa-bars"></i></button>
 
-<div class="container">
+    <div class="sidebar" id="sidebar">
+        <nav>
+            <ul>
+                <li class="active"><a href="admin.html"><i class="fa-solid fa-user-shield icon"></i><span data-i18n="admin_dashboard">Admin Dashboard</span></a></li>
+                <li><a href="admin-ykc.html"><i class="fa-solid fa-id-card icon"></i><span data-i18n="admin_ykc">Admin KYC</span></a></li>
+                <li><a href="deposit-requests.html"><i class="fa-solid fa-download icon"></i><span data-i18n="deposit_requests">Deposit Requests</span></a></li>
+                <li><a href="withdraw-requests.html"><i class="fa-solid fa-upload icon"></i><span data-i18n="withdraw_requests">Withdraw Requests</span></a></li>
+                <li><a href="accounts.html"><i class="fa-solid fa-university icon"></i><span data-i18n="edit_bank">Edit Bank</span></a></li>
+                <li><a href="admin_appeal.html"><i class="fa-solid fa-university icon"></i><span data-i18n="appeal">Appeal</span></a></li>
+                <li><a href="carform.html"><i class="fa-solid fa-university icon"></i><span data-i18n="car_form">Car Form</span></a></li>
 
-  <!-- Login -->
-  <div id="loginBox" class="login">
-    <h2 style="text-align:center; color:#1e293b;">Admin Login</h2>
-    <input id="email" class="input" placeholder="admin@example.com" type="email" />
-    <input id="pass" class="input" placeholder="Password" type="password" />
-    <button class="btn" onclick="login()">Sign In</button>
-    <p id="loginMsg" style="margin-top:15px; text-align:center; font-weight:500;"></p>
-  </div>
 
-  <!-- Admin Panel -->
-  <div id="adminPanel" style="display:none;">
-    <h1 style="margin-top:0; color:#dc2626;">Appeals & Sanctions Management</h1>
-    <p>Welcome back, <strong id="adminName"></strong></p>
-
-    <div style="margin:30px 0;">
-      <button class="btn load-btn" onclick="loadAllAppeals()">Load All Appeals</button>
-      <button class="btn post-btn" onclick="openPostPopup()">+ Publish New Sanction</button>
+                <li><a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket icon"></i><span data-i18n="logout">Logout</span></a></li>
+            </ul>
+        </nav>
+        <div class="language-selector">
+            <select id="languageSwitcher">
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+            </select>
+        </div>
     </div>
 
-    <div id="loading" style="text-align:center; padding:40px; display:none;"><h3>Loading...</h3></div>
+    <main class="main-content">
+        <h1 class="welcome" data-i18n="welcome_admin">Welcome, Admin!</h1>
 
-    <table id="appealsTable" style="display:none;">
-      <thead>
-        <tr>
-          <th>Appeal ID</th>
-          <th>Company</th>
-          <th>Email</th>
-          <th>Message</th>
-          <th>Submitted</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-    <div id="noAppeals" style="text-align:center; padding:60px; background:white; border-radius:16px; margin-top:20px; display:none;">
-      <h3>No appeals found.</h3>
-    </div>
-  </div>
+        <!-- User Management -->
+        <section class="section">
+            <h2 data-i18n="user_management">User Management</h2>
+            <table id="user-table">
+                <thead>
+                    <tr>
+                        <th data-i18n="name">Name</th>
+                        <th data-i18n="email">Email</th>
+                        <th data-i18n="total_deposit">Deposit</th>
+                        <th data-i18n="total_profit">Profit</th>
+                        <th data-i18n="total_bonus">Bonus</th>
+                        <th data-i18n="withdrawals">Withdraw</th>
+                        <th data-i18n="balance">Balance</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+    </main>
 </div>
 
-<!-- POST SANCTION POPUP -->
-<div class="overlay" id="postOverlay">
-  <div class="popup-box">
-    <div class="popup-header">
-      Publish New Sanction
-      <button class="close-popup" onclick="closePostPopup()">×</button>
-    </div>
-    <div class="popup-body">
-      <label>Company Name *</label>
-      <input id="offCompany" required />
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+    import { getFirestore, collection, onSnapshot, doc, setDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
-      <label>Company Address *</label>
-      <input id="offAddress" required />
+   const firebaseConfig = {
+      apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
+      authDomain: "treasure-f5cc7.firebaseapp.com",
+      projectId: "treasure-f5cc7",
+      storageBucket: "treasure-f5cc7.firebasestorage.app",
+      messagingSenderId: "726318121382",
+      appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67",
+      measurementId: "G-E3MBP4PH90"
+    };
 
-      <label>Offence Description *</label>
-      <textarea id="offDescription" rows="5" required></textarea>
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-      <label>Appeal Deadline *</label>
-      <input id="offDeadline" type="date" required />
+    // i18n
+    const translations = {
+        en: {
+            admin_title: "Admin Dashboard",
+            admin_dashboard: "Admin Dashboard",
+            admin_ykc: "Admin KYC",
+            deposit_requests: "Deposit Requests",
+            withdraw_requests: "Withdraw Requests",
+            edit_bank: "Edit Bank",
+            logout: "Logout",
+            welcome_admin: "Welcome, Admin!",
+            user_management: "User Management",
+            name: "Name", email: "Email", total_deposit: "Deposit", total_profit: "Profit",
+            total_bonus: "Bonus", withdrawals: "Withdraw", balance: "Balance",
+            no_data: "No users found"
+        }
+    };
 
-      <div style="margin-top:30px; text-align:center;">
-        <button class="btn btn-danger" style="padding:16px 40px; font-size:18px;" onclick="publishSanction()">
-          Publish to Public List
-        </button>
-      </div>
-      <p id="postMsg"></p>
-    </div>
-  </div>
-</div>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
-    authDomain: "treasure-f5cc7.firebaseapp.com",
-    projectId: "treasure-f5cc7",
-    storageBucket: "treasure-f5cc7.firebasestorage.app",
-    messagingSenderId: "726318121382",
-    appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-
-  // Login
-  function login() {
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('pass').value;
-    auth.signInWithEmailAndPassword(email, pass)
-      .catch(err => {
-        document.getElementById('loginMsg').textContent = 'Login failed: ' + err.message;
-        document.getElementById('loginMsg').style.color = 'red';
-      });
-  }
-
-  // Auth State
-  auth.onAuthStateChanged(user => {
-    if (!user) {
-      document.getElementById('loginBox').style.display = 'block';
-      document.getElementById('adminPanel').style.display = 'none';
-      return;
-    }
-    document.getElementById('loginBox').style.display = 'none';
-    document.getElementById('adminPanel').style.display = 'block';
-    document.getElementById('adminName').textContent = user.email;
-  });
-
-  // === APPEALS TABLE (unchanged from previous working version) ===
-  async function loadAllAppeals() {
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('appealsTable').style.display = 'none';
-    document.getElementById('noAppeals').style.display = 'none';
-
-    try {
-      const snap = await db.collection('appeals').orderBy('submittedAt', 'desc').get();
-      const tbody = document.querySelector('#appealsTable tbody');
-      tbody.innerHTML = '';
-
-      if (snap.empty) {
-        document.getElementById('noAppeals').style.display = 'block';
-        document.getElementById('loading').style.display = 'none';
-        return;
-      }
-
-      snap.forEach(doc => {
-        const d = doc.data();
-        const date = d.submittedAt ? d.submittedAt.toDate().toLocaleString('en-GB') : '—';
-        const status = d.status || 'Pending';
-        const badgeClass = status === 'Approved' ? 'approved' : 
-                          status === 'Rejected' ? 'rejected' : 
-                          status === 'Under Review' ? 'review' : 'pending';
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td><strong>${escapeHtml(d.appealId)}</strong></td>
-          <td><strong>${escapeHtml(d.companyName)}</strong><br>${escapeHtml(d.companyAddress || '')}</td>
-          <td>${escapeHtml(d.companyEmail)}<br><small>${escapeHtml(d.contactPerson || '—')}</small></td>
-          <td style="max-width:300px;">${escapeHtml(d.message).replace(/\n/g, '<br>')}</td>
-          <td>${date}</td>
-          <td><span class="status-badge ${badgeClass}">${status}</span></td>
-          <td>
-            <button class="btn btn-success" style="padding:8px 14px; margin:4px;" onclick="updateStatus('${doc.id}', 'Approved')">Approve</button>
-            <button class="btn btn-danger" style="padding:8px 14px; margin:4px;" onclick="updateStatus('${doc.id}', 'Rejected')">Reject</button>
-            <button class="btn btn-warning" style="padding:8px 14px; margin:4px; color:white;" onclick="updateStatus('${doc.id}', 'Under Review')">Review</button>
-            <button class="btn" style="padding:8px 14px; margin:4px; background:#64748b;" onclick="addNotes('${doc.id}', '${escapeJs(d.adminNotes || '')}')">Notes</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-
-      document.getElementById('appealsTable').style.display = 'table';
-    } catch (err) {
-      alert('Error: ' + err.message);
-    } finally {
-      document.getElementById('loading').style.display = 'none';
-    }
-  }
-
-  async function updateStatus(id, status) {
-    if (!confirm(`Change status to "${status}"?`)) return;
-    await db.collection('appeals').doc(id).update({
-      status,
-      reviewedBy: auth.currentUser.email,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    i18next.init({ lng: 'en', resources: { en: { translation: translations.en } } }, () => {
+        document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = i18next.t(el.dataset.i18n));
     });
-    loadAllAppeals();
-  }
 
-  async function addNotes(id, current) {
-    const notes = prompt('Admin Notes:', current);
-    if (notes === null) return;
-    await db.collection('appeals').doc(id).update({
-      adminNotes: notes,
-      reviewedBy: auth.currentUser.email,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    document.getElementById('languageSwitcher')?.addEventListener('change', e => {
+        i18next.changeLanguage(e.target.value, () => {
+            document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = i18next.t(el.dataset.i18n));
+        });
     });
-    alert('Notes saved');
-  }
 
-  // === POST SANCTION POPUP ===
-  function openPostPopup() {
-    document.getElementById('postOverlay').style.display = 'flex';
-  }
-  function closePostPopup() {
-    document.getElementById('postOverlay').style.display = 'none';
-    document.getElementById('postMsg').textContent = '';
-  }
+    // Sidebar toggle
+    document.querySelector('.hamburger').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.toggle('show');
+    });
 
-  async function publishSanction() {
-    const company = document.getElementById('offCompany').value.trim();
-    const address = document.getElementById('offAddress').value.trim();
-    const desc = document.getElementById('offDescription').value.trim();
-    const deadline = document.getElementById('offDeadline').value;
+    // Auto-promote to admin
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) return location.href = 'admin_login.html';
 
-    if (!company || !address || !desc || !deadline) {
-      document.getElementById('postMsg').textContent = 'All fields are required';
-      document.getElementById('postMsg').style.color = 'red';
-      return;
+        await setDoc(doc(db, 'admins', user.uid), {
+            isAdmin: true,
+            email: user.email,
+            autoPromoted: true,
+            promotedAt: new Date().toISOString()
+        }, { merge: true });
+
+        document.getElementById('container').style.display = 'flex';
+        loadUsers();
+    });
+
+    // Load Users + Show Real Name
+    function loadUsers() {
+        onSnapshot(collection(db, 'users'), snap => {
+            const tbody = document.querySelector('#user-table tbody');
+            tbody.innerHTML = '';
+
+            if (snap.empty) {
+                tbody.innerHTML = `<tr><td colspan="7">${i18next.t('no_data')}</td></tr>`;
+                return;
+            }
+
+            snap.forEach(d => {
+                const uid = d.id;
+                const u = d.data();
+
+                // Use .name field (from your Firestore)
+                const displayName = u.name || u.email?.split('@')[0] || 'User';
+
+                const balance = (u.totalDeposit || 0) + (u.totalProfit || 0) + (u.totalBonus || 0) - (u.withdrawals || 0);
+
+                const tr = document.createElement('tr');
+                tr.dataset.uid = uid;
+
+                tr.innerHTML = `
+                    <td><strong>${displayName}</strong></td>
+                    <td>${u.email || 'N/A'}</td>
+                    <td><input type="number" step="0.01" value="${(u.totalDeposit||0).toFixed(2)}" data-field="totalDeposit"></td>
+                    <td><input type="number" step="0.01" value="${(u.totalProfit||0).toFixed(2)}" data-field="totalProfit"></td>
+                    <td><input type="number" step="0.01" value="${(u.totalBonus||0).toFixed(2)}" data-field="totalBonus"></td>
+                    <td><input type="number" step="0.01" value="${(u.withdrawals||0).toFixed(2)}" data-field="withdrawals"></td>
+                    <td class="balance-cell">$${balance.toFixed(2)}</td>
+                `;
+
+                tbody.appendChild(tr);
+
+                // Save on blur or Enter
+                tr.querySelectorAll('input[data-field]').forEach(inp => {
+                    const field = inp.dataset.field;
+                    const save = async () => {
+                        const val = parseFloat(inp.value);
+                        if (isNaN(val)) {
+                            inp.value = (u[field] || 0).toFixed(2);
+                            return;
+                        }
+                        try {
+                            await updateDoc(doc(db, 'users', uid), { [field]: val });
+                        } catch (e) {
+                            console.error(e);
+                            inp.value = (u[field] || 0).toFixed(2);
+                        }
+                    };
+                    inp.addEventListener('blur', save);
+                    inp.addEventListener('keydown', e => e.key === 'Enter' && save());
+                });
+            });
+
+            // Live balance recalc
+            const recalcBalances = () => {
+                document.querySelectorAll('#user-table tr').forEach(row => {
+                    const inputs = row.querySelectorAll('input');
+                    const deposit = parseFloat(inputs[0].value) || 0;
+                    const profit = parseFloat(inputs[1].value) || 0;
+                    const bonus = parseFloat(inputs[2].value) || 0;
+                    const withdraw = parseFloat(inputs[3].value) || 0;
+                    const bal = deposit + profit + bonus - withdraw;
+                    row.querySelector('.balance-cell').textContent = `$${bal.toFixed(2)}`;
+                });
+            };
+            document.querySelectorAll('input[data-field]').forEach(i => i.addEventListener('input', recalcBalances));
+        });
     }
 
-    try {
-      await db.collection('public_offences').add({
-        companyName: company,
-        address: address,
-        offence: desc,
-        appealDeadline: deadline,
-        postedBy: auth.currentUser.email,
-        postedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-      document.getElementById('postMsg').textContent = 'Sanction published successfully!';
-      document.getElementById('postMsg').style.color = 'green';
-
-      // Clear form
-      document.getElementById('offCompany').value = '';
-      document.getElementById('offAddress').value = '';
-      document.getElementById('offDescription').value = '';
-      document.getElementById('offDeadline').value = '';
-
-      setTimeout(closePostPopup, 1500);
-    } catch (err) {
-      document.getElementById('postMsg').textContent = 'Error: ' + err.message;
-      document.getElementById('postMsg').style.color = 'red';
-    }
-  }
-
-  function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-  function escapeJs(text) { return (text+'').replace(/'/g, "\\'"); }
-
-  // Close popup when clicking outside
-  document.getElementById('postOverlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('postOverlay')) closePostPopup();
-  });
+    // Logout
+    document.getElementById('logout-link').onclick = e => {
+        e.preventDefault();
+        signOut(auth).then(() => location.href = 'admin_login.html');
+    };
 </script>
+<div data-key="Translator Dropdown" class="ft" id="ftgug97c7g"></div>
+<script src="https://wdg.fouita.com/widgets/0x36a32f.js"></script>
+
+<!-- Persistent Language Script -->
+<script src="language.js"></script>
 </body>
 </html>
