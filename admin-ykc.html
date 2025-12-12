@@ -57,8 +57,13 @@
   <div class="sidebar" id="sidebar">
     <nav>
       <ul>
-        <li><a href="admin.html"><i class="fa-solid fa-house icon"></i><span data-i18n="home">Home</span></a></li>
-        <li class="active"><a href="admin-ykc.html"><i class="fa-solid fa-shield-halved icon"></i><span data-i18n="admin_ykc">Admin YKC</span></a></li>
+       <li class="active"><a href="admin.html"><i class="fa-solid fa-user-shield icon"></i><span data-i18n="admin_dashboard">Admin Dashboard</span></a></li>
+                <li><a  href="admin-ykc.html"><i class="fa-solid fa-id-card icon"></i><span data-i18n="admin_ykc">Admin KYC</span></a></li>
+                <li><a href="deposit-requests.html"><i class="fa-solid fa-download icon"></i><span data-i18n="deposit_requests">Deposit Requests</span></a></li>
+                <li><a href="withdraw-requests.html"><i class="fa-solid fa-upload icon"></i><span data-i18n="withdraw_requests">Withdraw Requests</span></a></li>
+                <li><a href="accounts.html"><i class="fa-solid fa-university icon"></i><span data-i18n="edit_bank">Edit Bank</span></a></li>
+                <li><a href="admin_appeal.html"><i class="fa-solid fa-university icon"></i><span data-i18n="appeal">Appeal</span></a></li>
+                <li><a href="carform.html"><i class="fa-solid fa-university icon"></i><span data-i18n="car_form">Car Form</span></a></li>
         <li><a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket icon"></i><span data-i18n="logout">Logout</span></a></li>
       </ul>
     </nav>
@@ -110,15 +115,16 @@
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
     import { getFirestore, collection, onSnapshot, doc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
-     const firebaseConfig = {
-      apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
-      authDomain: "treasure-f5cc7.firebaseapp.com",
-      projectId: "treasure-f5cc7",
-      storageBucket: "treasure-f5cc7.firebasestorage.app",
-      messagingSenderId: "726318121382",
-      appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67",
-      measurementId: "G-E3MBP4PH90"
-    };
+     const app = initializeApp({
+        apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
+            authDomain: "treasure-f5cc7.firebaseapp.com",
+            projectId: "treasure-f5cc7",
+            storageBucket: "treasure-f5cc7.firebasestorage.app",
+            messagingSenderId: "726318121382",
+            appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67",
+            measurementId: "G-E3MBP4PH90"
+            });
+
 
     const auth = getAuth(app);
     const db = getFirestore(app);

@@ -28,17 +28,16 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
     import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
-     const firebaseConfig = {
-      apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
-      authDomain: "treasure-f5cc7.firebaseapp.com",
-      projectId: "treasure-f5cc7",
-      storageBucket: "treasure-f5cc7.firebasestorage.app",
-      messagingSenderId: "726318121382",
-      appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67",
-      measurementId: "G-E3MBP4PH90"
-    };
+     const app = initializeApp({
+        apiKey: "AIzaSyCDfyVAhNfuXYyzeetQ1_wlFhz7-wXWHDk",
+            authDomain: "treasure-f5cc7.firebaseapp.com",
+            projectId: "treasure-f5cc7",
+            storageBucket: "treasure-f5cc7.firebasestorage.app",
+            messagingSenderId: "726318121382",
+            appId: "1:726318121382:web:3cf5c5c7e628c9e313cf67",
+            measurementId: "G-E3MBP4PH90"
+            });
 
-    const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
     document.getElementById('login').onclick = async () => {
